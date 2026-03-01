@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Error</title>
+</head>
+<body>
+  <h1><%= message %></h1>
+
+  <% if (error.stack) { %>
+    <h2>Stack Trace (development only):</h2>
+    <pre><%= error.stack %></pre>
+  <% } else { %>
+    <p>Something went wrong. Please try again later.</p>
+  <% } %>
+</body>
+</html>

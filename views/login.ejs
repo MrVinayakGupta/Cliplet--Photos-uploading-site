@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinterest Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+
+<body>
+    <style>
+        .masonry-container {
+            column-count: 5;
+            /* Adjust based on screen size */
+            column-gap: 15px;
+            padding: 20px;
+        }
+
+        .pin {
+            margin-bottom: 15px;
+            break-inside: avoid;
+        }
+
+        .pin img {
+            width: 100%;
+            border-radius: 16px;
+            /* Pinterest's signature rounded corners */
+            display: block;
+        }
+    </style>
+
+    <a href="/signup" class="upbtn">Sign up</a>
+
+    <div class="masonry-container">
+        <% ids.forEach(function(url) { %>
+        <div class="pin">
+            <img src="<%= url %>" alt="Pinterest Image" loading="lazy">
+        </div>
+        <% }); %>
+    </div>
+
+    <div class="overlay" style="background: rgba(0, 0, 0, 0.5);">
+        <div class="container">
+            <div class="content">
+                <!--pinterest logo-->
+                <img src="https://i.pinimg.com/originals/d3/d1/75/d3d175e560ae133f1ed5cd4ec173751a.png" alt="pin logo"
+                    class="img1" />
+                <p class="header">log in to see more</p>
+
+                <form action="/login" method="POST">
+                    <input type="text" name="username" placeholder="Username" class="detail" /><br />
+                    <input type="password" name="password" placeholder="Password" class="detail" />
+                    <input type="submit" value="Log in" class="btn int">
+
+                </form>
+
+                <a href="/forgot">Forgot your password?</a>
+
+                <p class="or">OR</p>
+                <button class="btn fbk">
+                    <i class="fab fa-facebook fa-lg" style="padding-right: 10px"></i><a href="#">Continue
+                        with
+                        Facebook</a></button><br />
+                <button class="btn ggl">
+                    <i class="fab fa-google" style=" padding-right: 10px"></i><a
+                        href="#">Continue
+                        with
+                        Google</a>
+                </button>
+
+                <footer>
+                    <p>
+                        By continuing, you agree to Pinterest's
+                        <b>Terms of Service, Privacy policy.</b>
+                    </p>
+                    <hr />
+                    <p>Not on Pinterest yet? Sign up</p>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pinterest Login</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="/stylesheets/style.css">
+</head>
+
+<body>
+  <style>
+    .masonry-container {
+      column-count: 5;
+      /* Adjust based on screen size */
+      column-gap: 15px;
+      padding: 20px;
+    }
+
+    .pin {
+      margin-bottom: 15px;
+      break-inside: avoid;
+    }
+
+    .pin img {
+      width: 100%;
+      border-radius: 16px;
+      /* Pinterest's signature rounded corners */
+      display: block;
+    }
+  </style>
+
+  <div class="masonry-container">
+    <% ids.forEach(function(url) { %>
+      <div class="pin">
+        <img src="<%= url %>" alt="Pinterest Image" loading="lazy">
+      </div>
+      <% }); %>
+  </div>
+
+  <div class="overlay" style="background: rgba(0, 0, 0, 0.5);">
+     <a href="/signup" class="upbtn">Sign up</a>
+    <div class="container">
+      <div class="content">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Pinterest-logo.png" alt="Pinterest Logo"
+          class="img1">
+        <p class="header">Make an account to see more</p>
+
+        <form action="/register" method="POST">
+          <input type="email" name="email" placeholder="Email" class="detail" required>
+          <input type="text" name="username" placeholder="Username" class="detail" required>
+          <input type="text" name="fullName" placeholder="Full Name" class="detail" required>
+          <input type="password" name="password" placeholder="Password" class="detail" required>
+          <input type="submit" value="Register Account" class="btn int">
+        </form>
+
+        <a href="/forgot" class="forgot-link">Forgot your password?</a>
+        <p class="or">OR</p>
+
+        <button class="btn ggl">
+          <i class="fab fa-google"></i> Continue with Google
+        </button>
+        <button class="btn qr">
+          <i class="fa-solid fa-qrcode"></i> Use QR code
+        </button>
+
+        <footer>
+          <p>By continuing, you agree to Pinterest's <b>Terms of Service</b> and acknowledge you've read our <b>Privacy
+              Policy.</b></p>
+          <hr>
+          <p>Not on Pinterest yet? <span class="signup-link">Sign up</span></p>
+        </footer>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+</html>
