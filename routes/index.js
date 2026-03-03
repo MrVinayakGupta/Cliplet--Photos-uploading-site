@@ -38,6 +38,7 @@ router.get('/profile', isLoggedIn, (req, res, next) => {
 //       });
 //     })
 // });
+
 router.post("/register", (req, res) => {
   const { username, email, fullName, password } = req.body;
   const userData = new userModel({ username, email, fullName });
