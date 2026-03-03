@@ -37,7 +37,6 @@ router.get('/profile', isLoggedIn, (req, res, next) => {
 //         return res.redirect("/profile");
 //       });
 //     })
-    
 // });
 router.post("/register", (req, res) => {
   const { username, email, fullName, password } = req.body;
