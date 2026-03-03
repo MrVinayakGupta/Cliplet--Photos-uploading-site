@@ -4,6 +4,87 @@
   <title><%= title %></title>
 </head>
 <body>
+    <style>
+        * {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  background: #ffffff;
+  display: flex;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.page {
+  width: 350px;
+}
+
+/* COLLAGE */
+.collage {
+  position: relative;
+  height: 280px;
+  margin-bottom: 40px;
+}
+
+.collage img {
+  position: absolute;
+  width: 180px;
+  border: 5px solid white;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+}
+
+/* posiciones tipo pinterest */
+.collage img:nth-child(1) { top: 20px; left: 0; }
+.collage img:nth-child(2) { top: 0; left: 150px; }
+.collage img:nth-child(3) { top: 40px; left: 300px; }
+.collage img:nth-child(4) { top: 120px; left: 100px; }
+.collage img:nth-child(5) { top: 140px; left: 250px; }
+
+/* CARD TEXTO */
+.card {
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: #111;
+}
+
+.intro {
+  margin-bottom: 10px;
+}
+
+.links {
+  margin: 8px 0;
+}
+
+.links a {
+  color: #000;
+  text-decoration: underline;
+  font-size: 0.8rem;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #bbb;
+  margin: 14px 0;
+}
+
+/* BYF / DFI */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 17px;
+  font-size: 0.78rem;
+}
+
+/* FAVS */
+.favs {
+  font-size: 0.78rem;
+}
+
+    </style>
 <div class="page">
 
   <!-- COLLAGE DE IMÁGENES -->
