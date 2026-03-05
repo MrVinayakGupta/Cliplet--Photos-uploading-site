@@ -16,28 +16,14 @@ router.get('/login', (req, res) => {
     res.render('login', { ids: imageIds });
 });
 
-router.get('/singup', (req, res) => {
+router.get('/signup', (req, res) => {
     // We pass the 'imageIds' array to the EJS template under the name 'ids'
-    res.render('singup', { ids: imageIds });
+    res.render('signup', { ids: imageIds });
 });
 
 router.get('/profile', isLoggedIn, (req, res, next) => {
     res.render('profile', { title: 'Pinterest Profile' });
 });
-
-// router.post("/register", (req, res, next) => {
-//   const { username, email, fullName, password } = req.body;
-//   const userData = new userModel({ username, email, fullName });
-
-//   userModel.register(userData, password)
-//     .then(user => {
-//       // Log the user in immediately after registration
-//       req.login(user, function(err) {
-//         if (err) { return next(err); }
-//         return res.redirect("/profile");
-//       });
-//     })
-// });
 
 router.post("/register", (req, res) => {
   const { username, email, fullName, password } = req.body;
