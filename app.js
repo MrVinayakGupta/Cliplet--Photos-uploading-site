@@ -4,13 +4,14 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const expressSession = require('express-session');
-// const passport = require("passport");
+const flash = require('connect-flash');
 const ejs = require("ejs");
 const ejsMate = require("ejs-mate");
 
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+const passport = require("passport");
 
 var app = express();
 
@@ -20,8 +21,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.urlencoded({ extended: true }));
 app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
-
-const passport = require("passport");
+app.use(flash());
 
 // Session setup
 const session = require("express-session");

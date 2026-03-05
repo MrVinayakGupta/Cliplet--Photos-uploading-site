@@ -13,7 +13,8 @@ router.get('/', (req, res) => {
 });
 
 router.get('/login', (req, res) => {
-    res.render('login', { ids: imageIds });
+  console.log(req.flash('error')); // Log the flash message to the console for debugging
+    res.render('login', { ids: imageIds, error: req.flash('error') });
 });
 
 router.get('/signup', (req, res) => {
@@ -41,6 +42,7 @@ router.post("/register", (req, res) => {
 router.post("/login", passport.authenticate("local", {
   successRedirect: "/profile",
   failureRedirect: "/login",
+  failureFlash: true
 }), (req, res) => {
   res.render("login", { title: "Login" });
 });
