@@ -1,150 +1,280 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title><%= title %></title>
+    <title>
+        <%= title %>
+    </title>
 </head>
+
 <body>
     <style>
-        * {
+        @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@300&display=swap");
+
+* {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+  font-family: "Nunito", sans-serif;
+}
+
+:root {
+  --green: #58a497;
+  --yellow: #e09449;
+  --lightgreen1: #a4bdb7;
+  --brown: #8b4448;
+  --gray: gray;
+  --lightgreen2: rgb(164, 189, 183, 0.5);
+  --box: #ededed;
 }
 
 body {
-  font-family: Georgia, "Times New Roman", serif;
-  background: #ffffff;
   display: flex;
   justify-content: center;
-  padding: 40px 0;
+  min-height: 100vh;
+
+  background: #a4bdb7;
 }
 
-.page {
-  width: 350px;
+/* Content-1:Start */
+.box {
+  width: 90vw;
+  height: fit-content;
+  border-radius: 20px;
+  padding: 10px;
+  text-align: center;
+  background: #ededed;
 }
 
-/* COLLAGE */
-.collage {
-  position: relative;
-  height: 280px;
-  margin-bottom: 40px;
+.box1 {
+  margin-top: 10px;
 }
 
-.collage img {
-  position: absolute;
-  width: 180px;
-  border: 5px solid white;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+.content {
+  margin: 15px 2px;
 }
 
-/* posiciones tipo pinterest */
-.collage img:nth-child(1) { top: 20px; left: 0; }
-.collage img:nth-child(2) { top: 0; left: 150px; }
-.collage img:nth-child(3) { top: 40px; left: 300px; }
-.collage img:nth-child(4) { top: 120px; left: 100px; }
-.collage img:nth-child(5) { top: 140px; left: 250px; }
+.image img {
+  height: auto;
+  width: 120px;
+  border-radius: 50%;
 
-/* CARD TEXTO */
-.card {
-  font-size: 0.85rem;
-  line-height: 1.5;
-  color: #111;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 5px;
 }
 
-.intro {
+.level {
+  font-size: 0.7em;
+  background-color: rgb(164, 189, 183, 0.5);
+  width: 50px;
+  padding: 3px;
+  border-radius: 5px;
+  font-weight: bolder;
+  letter-spacing: 1px;
+
+  display: block;
+  margin: 0px auto 10px;
+}
+
+.name {
+  font-size: 1.25em;
+  font-weight: bolder;
+  letter-spacing: 1px;
+}
+
+.job_title {
+  font-size: 0.65em;
+  font-weight: bolder;
+  color: gray;
+  margin-top: -2px;
+}
+
+.job_discription {
+  font-size: 0.7em;
+  color: gray;
+  margin: 10px 30px 20px;
+}
+
+.icons {
+  margin: 0px 30px;
+  font-size: 1.5em;
+  display: flex;
+  justify-content: space-around;
+}
+
+.icons button {
+  width: fit-content;
+  height: fit-content;
+  border: none;
+  font-size: 1em;
+}
+
+ion-icon:hover {
+  color: #58a497;
+  transition: 0.5s;
+}
+
+button {
+  width: 130px;
+  height: 40px;
+  border-radius: 10px;
+  font-weight: bolder;
+}
+
+.button {
+  display: flex;
+  justify-content: space-around;
+  flex-direction: row;
+  margin: 20px 30px 0px;
+}
+
+.button .message {
+  background: #ededed;
+  border: 2px solid #000;
+}
+
+.button .connect {
+  background-color: #000;
+  color: #ededed;
+  border: none;
+}
+button.connect:hover {
+  letter-spacing: 1px;
+  transition: 0.5s;
+}
+button.message:hover {
+  letter-spacing: 1px;
+  transition: 0.5s;
+  background: rgba(88, 164, 151, 0.5);
+}
+/* Content-1:End */
+
+/* Content-2:Start */
+.box2 {
+  margin-top: 50px;
   margin-bottom: 10px;
 }
 
-.links {
-  margin: 8px 0;
+.box2 img {
+  width: 80px;
 }
 
-.links a {
-  color: #000;
-  text-decoration: underline;
-  font-size: 0.8rem;
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0px 0px 10px;
 }
 
-hr {
-  border: none;
-  border-top: 1px solid #bbb;
-  margin: 14px 0;
+h5 {
+  font-weight: bolder;
+  font-size: 1em;
 }
 
-/* BYF / DFI */
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 17px;
-  font-size: 0.78rem;
+.row p {
+  font-size: 0.8em;
 }
 
-/* FAVS */
-.favs {
-  font-size: 0.78rem;
+.box2 .text {
+  text-align: left;
 }
 
+.box2 .text .name {
+  font-size: 1.1em;
+}
+
+.box2 .text .job_title {
+  font-size: 0.6em;
+  margin-bottom: 10px;
+}
+
+.box2 .text .job_discription {
+  margin: 0px;
+}
+
+.box2 .text .about {
+  font-size: 0.9em;
+  font-weight: bolder;
+}
+/* Content-2:End */
+
+/* Responsiveness:Start */
+@media screen and (max-width: 480px) {
+    .box{
+        width: 100vw;
+        border-radius: 0px;
+    }
+    .button{
+        display: flex;
+        flex-direction: column;
+    }
+    .button button{
+        width: 250px;
+    }
+    button.connect{
+        margin-top: 10px;
+    }
+    .content2{
+        padding: 0px 20px;
+    }
+    .content2 img{
+        width: 60px;
+        height: 60px;
+    }
+}
+/* Responsiveness:End */
     </style>
-<div class="page">
+    <section>
 
-  <!-- COLLAGE DE IMÁGENES -->
-  <div class="collage">
-    <img src="https://64.media.tumblr.com/3259834363a4b3426dbf1985afc0a42a/9b2343a9d10c0830-8c/s400x600/f58e25feced55c7086e613c64fc3b9373d6afd05.gifv">
-    <img src="https://64.media.tumblr.com/a92096ee207bd51174377ec548f4e169/79291b50a723f854-c7/s1280x1920/f911260eb5e5037d2e26320dd2995da0ed54fbd1.jpg">
-    <img src="https://i.pinimg.com/736x/23/df/54/23df54c54fc1b21b4a56cc3b7b2dcb69.jpg">
-    <img src="https://64.media.tumblr.com/de9ccf5692f982fd4d847891390402c7/8b2d645b97f75d41-16/s1280x1920/b92bb3d5f0c7150c0b9adbf81fe231152dd41156.jpg">
-    <img src="https://64.media.tumblr.com/120ef737c56c3fd08a489712a785ac78/8b2d645b97f75d41-1a/s1280x1920/37e1389d483733d0155e4c01ba5a1ad00b7d0dd7.jpg">
-  </div>
+        <div class="box">
+            <div class="content">
+                <div class="image">
+                    <img src="https://i.postimg.cc/bryMmCQB/profile-image.jpg" alt="Profile Image">
+                </div>
+                <div class="level">
+                    <p>PRO</p>
+                </div>
+                <div class="text">
+                    <p class="name">Ethan Rivers</p>
+                    <p class="job_title">UI / UX Designer</p>
+                    <p class="job_discription">Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam atque,
+                        ipsam a amet laboriosam eligendi.</p>
+                </div>
+                <div class="icons">
+                    <button>
+                        <ion-icon name="logo-dribbble"></ion-icon>
+                    </button>
+                    <button>
+                        <ion-icon name="logo-instagram"></ion-icon>
+                    </button>
+                    <button>
+                        <ion-icon name="logo-twitter"></ion-icon>
+                    </button>
+                    <button>
+                        <ion-icon name="logo-linkedin"></ion-icon>
+                    </button>
+                    <button>
+                        <ion-icon name="logo-facebook"></ion-icon>
+                    </button>
+                    <button>
+                        <ion-icon name="logo-behance"></ion-icon>
+                    </button>
+                </div>
+                <div class="button">
+                    <div>
+                        <button class="message" type="button">Message</button>
+                    </div>
+                    <div>
+                        <button class="connect" type="button">Connect</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-  <!-- CARD TEXTO -->
-  <div class="card">
-
-    <p class="intro">
-      愛  <b>kang ✢ 𓈒 ֹ .·</b>! she/her
-    </p>
-
-    <p>
-      info info info info (★)<br>
-      playing… fearless by le sserafim ♪ ͏͏
-    </p>
-
-    <p>
-      &lt;3 text text text text text text text text text text text texttext text texttext text text
-    </p>
-
-    <p class="links">
-      <a href="#">rant</a> ·
-      <a href="#">ccat</a> ·
-      <a href="#">pinterest</a> ·
-      <a href="#">spotify</a>
-    </p>
-
-    <hr>
-
-    <div class="grid">
-      <div>
-        <b>ABOUT ME⠀୨୧</b><br>
-        text text text text text text text text text text text text text text text text text text text text text
-      </div>
-
-      <div>
-        <b>LOVELIST⠀୨୧ </b><br>
-        text text text text text text text text text text text text text text text text text text text text text
-      </div>
-    </div>
-
-    <hr>
-
-    <p class="favs">
-      <b>amorcitos</b> text text text  ❤︎  text text text ♡
-      text text text
-      &lt; text text texte <u>otros ❤︎</u>
-      text text text text text text
-    </p>
-
-  </div>
-
-</div>
-
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
 </body>
+
 </html>
