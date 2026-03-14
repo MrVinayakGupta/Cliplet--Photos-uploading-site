@@ -262,6 +262,11 @@ h5 {
                 </div>
                 <div class="button">
                     <div>
+                        <form action="/upload" method="POST" enctype="multipart/form-data">
+                            <input type="file" name="file" id="file" style="display: none;" />
+                            <label for="file" class="message">Upload</label>
+
+                        </form>
                         <button class="message" type="button">Post</button>
                     </div>
                     <div>
