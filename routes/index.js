@@ -8,7 +8,7 @@ const LocalStrategy = require('passport-local').Strategy;
 
 passport.use(new LocalStrategy(userModel.authenticate()));
 
-const upload = require('./multerSetup');
+const upload = require('./multer');
 //handle file upload route
 router.post('/upload', upload.single('image'), (req, res) => {
   if (!req.file) {
