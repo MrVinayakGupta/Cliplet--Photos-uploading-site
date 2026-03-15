@@ -8,6 +8,15 @@ const LocalStrategy = require('passport-local').Strategy;
 
 passport.use(new LocalStrategy(userModel.authenticate()));
 
+const upload = require('./multerSetup');
+//handle file upload route
+router.post('/upload', upload.single('image'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).send('No file uploaded.');
+  }
+  res.send('File uploaded successfully.');
+});
+
 router.get('/', (req, res) => {
     res.render('home', {  title: 'Pinterest Home' });
 });
