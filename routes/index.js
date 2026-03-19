@@ -10,10 +10,16 @@ passport.use(new LocalStrategy(userModel.authenticate()));
 
 const upload = require('./multer');
 //handle file upload route
-router.post('/upload', upload.single('image'), (req, res) => {
+router.post('/upload',isLoggedIn, upload.single('file'), async (req, res, next) => {
   if (!req.file) {
     return res.status(400).send('No file uploaded.');
   }
+  const user = await userModel.findOne({ username: req.session.passport.user } );
+  postModel.create({
+    image: req.file.filename,
+    imageText: req.body.filecaption,
+    user: user._id
+  })
   res.send('File uploaded successfully.');
 });
 
