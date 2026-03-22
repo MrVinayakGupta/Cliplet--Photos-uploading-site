@@ -29,7 +29,8 @@
 
 body {
   display: flex;
-  justify-content: center;
+  /* align-items: center; */
+  flex-direction: column;
   min-height: 100vh;
   /* background: #a4bdb7; */
 }
@@ -196,6 +197,17 @@ h5 {
   font-size: 0.9em;
   font-weight: bolder;
 }
+.flex{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.box-cards {
+  margin: 20px 0px;
+}
+.card{
+  display: flex;
+}
 /* Content-2:End */
 
 /* Responsiveness:Start */
@@ -224,7 +236,7 @@ h5 {
 }
 /* Responsiveness:End */
     </style>
-    <section>
+    <section class="flex">
 
         <div class="box">
             <div class="content">
@@ -265,7 +277,8 @@ h5 {
                     <div>
                         <form action="/upload" method="POST" enctype="multipart/form-data">
                             <input type="text" name="filecaption" placeholder="Caption" /> 
-                            <input type="file" name="file" id="file" style="display: none;" />
+                            <input type="file" name="file" id="file"  /> 
+                            <!-- style="display: none;" -->
                             <button type="submit">Upload</button>
 
                         </form>
@@ -278,6 +291,16 @@ h5 {
             </div>
         </div>
     </section>
+    <div class="box-cards">
+      <div class="cards">
+        <% user.posts.forEach(post => { %>
+          <div class="card">
+            <img src="/images/uploads/<%= post.image %>" alt="Post by <%= user.fullName %>:">
+            <p><%= post.caption %></p>
+          </div>
+        <% }) %>
+      </div>
+    </div>
 
     <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
     <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
