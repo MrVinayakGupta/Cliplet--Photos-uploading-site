@@ -21,8 +21,9 @@ router.post('/upload',isLoggedIn, upload.single('file'), async (req, res, next) 
     user: user._id
   });
 
-  await user.posts.push(postdata._id);
-  res.send('File uploaded successfully.');
+  user.posts.push(postdata._id);
+  await user.save();
+  res.redirect('/profile');
 });
 
 router.get('/', (req, res) => {
@@ -42,7 +43,7 @@ router.get('/signup', (req, res) => {
 router.get('/profile', isLoggedIn,  async (req, res, next) => {
   const user = await userModel.findOne({ 
     username: req.session.passport.user
-   })
+   }).populate('posts'); // Populate the 'posts' field with the actual post documents
     res.render('profile', { title: 'Pinterest Profile', user: user });
 });
 
