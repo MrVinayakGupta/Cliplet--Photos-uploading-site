@@ -232,10 +232,11 @@ h5 {
                     <img src="https://i.postimg.cc/bryMmCQB/profile-image.jpg" alt="Profile Image">
                 </div>
                 <div class="level">
-                    <p>PRO</p>
+                    <!-- <p>PRO</p> -->
                 </div>
                 <div class="text">
-                    <p class="name">Ethan Rivers</p>
+                    <p class="name"><%= user.fullName %></p>
+                    <p style="font-size: 16px; opacity: 0.7;" class="name">@<%= user.username %></p>
                     <p class="job_title">UI / UX Designer</p>
                     <p class="job_discription">Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam atque,
                         ipsam a amet laboriosam eligendi.</p>
@@ -263,7 +264,7 @@ h5 {
                 <div class="button">
                     <div>
                         <form action="/upload" method="POST" enctype="multipart/form-data">
-                            <input type="text" name="filecaption" placeholder="Caption" />
+                            <input type="text" name="filecaption" placeholder="Caption" /> 
                             <input type="file" name="file" id="file" style="display: none;" />
                             <button type="submit">Upload</button>
 

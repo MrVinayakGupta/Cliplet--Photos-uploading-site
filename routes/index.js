@@ -39,8 +39,11 @@ router.get('/signup', (req, res) => {
     res.render('signup', { ids: imageIds });
 });
 
-router.get('/profile', isLoggedIn, (req, res, next) => {
-    res.render('profile', { title: 'Pinterest Profile' });
+router.get('/profile', isLoggedIn,  async (req, res, next) => {
+  const user = await userModel.findOne({ 
+    username: req.session.passport.user
+   })
+    res.render('profile', { title: 'Pinterest Profile', user: user });
 });
 
 router.post("/register", (req, res) => {
