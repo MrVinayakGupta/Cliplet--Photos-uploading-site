@@ -263,7 +263,8 @@ h5 {
                 <div class="button">
                     <div>
                         <form action="/upload" method="POST" enctype="multipart/form-data">
-                            <input type="file" name="file" />
+                            <input type="text" name="filecaption" placeholder="Caption" />
+                            <input type="file" name="file" id="file" style="display: none;" />
                             <button type="submit">Upload</button>
 
                         </form>
