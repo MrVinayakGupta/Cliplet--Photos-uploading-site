@@ -29,6 +29,12 @@
             /* Pinterest's signature rounded corners */
             display: block;
         }
+        .error{
+            color: red;
+            font-size: 14px;
+            font-weight: 500;
+            margin-top: 10px;
+        }
     </style>
 
     <a href="/signup" class="upbtn">Sign up</a>
@@ -49,8 +55,7 @@
                     class="img1" />
                 <p class="header">log in to see more</p>
                 <% if(error.length > 0) { %>
-                    <p class="error"><%= console.error(error);
-                     %></p>
+                    <p class="error">hey  do you know tere liye rakha pallu sambhale<%= console.error(error); %></p>
                     <% } %>
                 <form action="/login" method="POST">
                     <input type="text" name="username" placeholder="Username" class="detail" /><br />
