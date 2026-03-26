@@ -54,7 +54,7 @@
                 <img src="https://i.pinimg.com/originals/d3/d1/75/d3d175e560ae133f1ed5cd4ec173751a.png" alt="pin logo"
                     class="img1" />
                 <p class="header">log in to see more</p>
-                <% if(error.length > 0) { %>
+                <% if(error.length ) { %>
                     <p class="error">hey  do you know tere liye rakha pallu sambhale<%= console.error(error); %></p>
                     <% } %>
                 <form action="/login" method="POST">
