@@ -1,5 +1,835 @@
 <!DOCTYPE html>
 <html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Pinspire — Discover Your World</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Satoshi:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --pink:    #FF3CAC;
+    --violet:  #784BA0;
+    --blue:    #2B86C5;
+    --cyan:    #00F5D4;
+    --orange:  #FF6B35;
+    --yellow:  #FFD23F;
+    --grad1: linear-gradient(135deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%);
+    --grad2: linear-gradient(135deg, #00F5D4 0%, #2B86C5 100%);
+    --grad3: linear-gradient(135deg, #FF6B35 0%, #FFD23F 100%);
+    --grad4: linear-gradient(135deg, #FF3CAC 0%, #FF6B35 100%);
+    --glass-bg: rgba(255,255,255,0.08);
+    --glass-border: rgba(255,255,255,0.15);
+    --glass-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    --bg-dark: #0a0a0f;
+    --bg-card: #13131e;
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255,255,255,0.6);
+    --sidebar-w: 240px;
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── ANIMATED BACKGROUND ─── */
+  .bg-orbs {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+  }
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.18;
+    animation: orbFloat 12s ease-in-out infinite alternate;
+  }
+  .orb1 { width:500px; height:500px; background:var(--pink); top:-100px; left:-100px; animation-delay:0s; }
+  .orb2 { width:400px; height:400px; background:var(--blue); bottom:-80px; right:-80px; animation-delay:-4s; }
+  .orb3 { width:300px; height:300px; background:var(--cyan); top:40%; left:40%; animation-delay:-8s; }
+  .orb4 { width:250px; height:250px; background:var(--orange); top:20%; right:20%; animation-delay:-2s; }
+
+  @keyframes orbFloat {
+    0%   { transform: translate(0,0) scale(1); }
+    100% { transform: translate(40px, 30px) scale(1.1); }
+  }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {
+    position: fixed; left:0; top:0; bottom:0;
+    width: var(--sidebar-w);
+    background: rgba(15,15,25,0.7);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-right: 1px solid var(--glass-border);
+    z-index: 100;
+    display: flex; flex-direction: column;
+    padding: 28px 0;
+    transition: transform 0.4s cubic-bezier(.4,0,.2,1);
+  }
+
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    padding: 0 24px 28px;
+    font-family: 'Syne', sans-serif;
+    font-size: 22px; font-weight: 800;
+    border-bottom: 1px solid var(--glass-border);
+  }
+  .logo-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: var(--grad1);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 0 20px rgba(255,60,172,0.5);
+  }
+  .logo-text { background: var(--grad1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+  .sidebar-section { padding: 20px 16px 8px; font-size: 10px; font-weight: 600; letter-spacing: 2px; color: var(--text-secondary); text-transform: uppercase; }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 24px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-radius: 0 50px 50px 0;
+    margin-right: 16px;
+    transition: all 0.3s ease;
+    font-size: 14px; font-weight: 500;
+    position: relative;
+  }
+  .nav-item:hover, .nav-item.active {
+    color: #fff;
+    background: var(--glass-bg);
+  }
+  .nav-item.active::before {
+    content:'';
+    position: absolute; left:0; top:50%; transform:translateY(-50%);
+    width:3px; height:60%;
+    background: var(--grad1);
+    border-radius: 0 4px 4px 0;
+  }
+  .nav-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; transition: all 0.3s;
+  }
+  .nav-item.active .nav-icon, .nav-item:hover .nav-icon {
+    background: var(--glass-bg);
+    box-shadow: 0 0 12px rgba(255,60,172,0.3);
+  }
+
+  .category-chip {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 24px; cursor: pointer;
+    color: var(--text-secondary); font-size: 13px;
+    transition: all 0.3s;
+  }
+  .category-chip:hover { color: #fff; }
+  .chip-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .sidebar-footer {
+    margin-top: auto; padding: 20px 24px;
+    border-top: 1px solid var(--glass-border);
+  }
+  .user-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--grad1);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px;
+    box-shadow: 0 0 16px rgba(255,60,172,0.4);
+  }
+  .user-info { display: flex; align-items: center; gap: 10px; }
+  .user-name { font-size: 13px; font-weight: 600; }
+  .user-handle { font-size: 11px; color: var(--text-secondary); }
+
+  /* ─── MAIN CONTENT ─── */
+  .main {
+    margin-left: var(--sidebar-w);
+    min-height: 100vh;
+    position: relative; z-index: 1;
+  }
+
+  /* ─── TOPBAR ─── */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    padding: 16px 32px;
+    background: rgba(10,10,15,0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--glass-border);
+    display: flex; align-items: center; gap: 16px;
+  }
+
+  .search-wrap {
+    flex: 1; max-width: 560px;
+    position: relative;
+  }
+  .search-input {
+    width: 100%;
+    padding: 13px 20px 13px 48px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid var(--glass-border);
+    border-radius: 50px;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s;
+    backdrop-filter: blur(12px);
+  }
+  .search-input::placeholder { color: rgba(255,255,255,0.35); }
+  .search-input:focus {
+    border-color: rgba(255,60,172,0.5);
+    background: rgba(255,255,255,0.1);
+    box-shadow: 0 0 0 3px rgba(255,60,172,0.1), 0 0 30px rgba(255,60,172,0.1);
+  }
+  .search-icon {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    color: var(--text-secondary); font-size: 17px; pointer-events: none;
+  }
+
+  .topbar-actions { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+  .icon-btn {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    font-size: 17px; transition: all 0.3s;
+  }
+  .icon-btn:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.14);
+    border-color: rgba(255,60,172,0.4);
+    box-shadow: 0 0 16px rgba(255,60,172,0.2);
+    transform: scale(1.07);
+  }
+
+  .create-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 20px; border-radius: 50px;
+    background: var(--grad1);
+    color: #fff; font-size: 13px; font-weight: 600;
+    cursor: pointer; border: none;
+    font-family: 'DM Sans', sans-serif;
+    box-shadow: 0 4px 20px rgba(255,60,172,0.35);
+    transition: all 0.3s;
+  }
+  .create-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(255,60,172,0.5); }
+
+  /* ─── FILTER TABS ─── */
+  .filter-bar {
+    padding: 16px 32px;
+    display: flex; align-items: center; gap: 10px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+  .filter-tab {
+    padding: 8px 18px; border-radius: 50px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+    font-size: 13px; font-weight: 500;
+    cursor: pointer; white-space: nowrap;
+    transition: all 0.3s;
+    backdrop-filter: blur(8px);
+  }
+  .filter-tab:hover { color: #fff; border-color: rgba(255,255,255,0.25); }
+  .filter-tab.active {
+    background: var(--grad1);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(255,60,172,0.3);
+  }
+
+  /* ─── MASONRY GRID ─── */
+  .grid-wrap { padding: 8px 24px 40px; }
+
+  .masonry {
+    columns: 5;
+    column-gap: 14px;
+  }
+  @media (max-width:1400px){ .masonry { columns:4; } }
+  @media (max-width:1100px){ .masonry { columns:3; } }
+  @media (max-width:760px) { .masonry { columns:2; } }
+
+  /* ─── PIN CARD ─── */
+  .pin {
+    break-inside: avoid;
+    margin-bottom: 14px;
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.4s cubic-bezier(.22,1,.36,1);
+    animation: pinReveal 0.6s ease both;
+  }
+  .pin:hover { transform: translateY(-6px) scale(1.01); }
+  .pin:hover .pin-overlay { opacity: 1; }
+  .pin:hover .pin-img { transform: scale(1.05); }
+
+  @keyframes pinReveal {
+    from { opacity:0; transform: translateY(24px) scale(0.96); }
+    to   { opacity:1; transform: translateY(0) scale(1); }
+  }
+
+  .pin-img-wrap { position: relative; overflow: hidden; border-radius: 20px; }
+  .pin-img {
+    width: 100%; display: block;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(.22,1,.36,1);
+    border-radius: 20px;
+  }
+
+  .pin-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0) 30%, rgba(0,0,0,0.75) 100%);
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    border-radius: 20px;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 16px;
+  }
+
+  .pin-save-btn {
+    position: absolute; top: 12px; right: 12px;
+    padding: 9px 18px; border-radius: 50px;
+    background: var(--grad1);
+    color: #fff; font-size: 12px; font-weight: 700;
+    border: none; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(255,60,172,0.5);
+    font-family: 'DM Sans', sans-serif;
+    opacity: 0;
+    transform: translateY(-6px);
+    transition: all 0.3s;
+  }
+  .pin:hover .pin-save-btn { opacity: 1; transform: translateY(0); }
+  .pin-save-btn:hover { box-shadow: 0 6px 24px rgba(255,60,172,0.7); transform: scale(1.05); }
+
+  .pin-more-btn {
+    position: absolute; top: 12px; right: 90px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff; font-size: 16px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: all 0.3s;
+  }
+  .pin:hover .pin-more-btn { opacity: 1; }
+
+  .pin-title {
+    font-size: 13px; font-weight: 600; color: #fff;
+    line-height: 1.4; margin-bottom: 6px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+  .pin-meta {
+    display: flex; align-items: center; gap: 8px;
+  }
+  .pin-avatar {
+    width: 22px; height: 22px; border-radius: 50%;
+    flex-shrink: 0; object-fit: cover;
+  }
+  .pin-author { font-size: 11px; color: rgba(255,255,255,0.8); font-weight: 500; }
+
+  .pin-like-btn {
+    position: absolute; bottom: 12px; right: 12px;
+    display: flex; align-items: center; gap: 5px;
+    padding: 6px 12px; border-radius: 50px;
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.9); font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.3s;
+    opacity: 0;
+  }
+  .pin:hover .pin-like-btn { opacity: 1; }
+  .pin-like-btn:hover { background: rgba(255,60,172,0.4); border-color: rgba(255,60,172,0.5); }
+  .pin-like-btn.liked { color: #FF3CAC; }
+
+  /* Badge on pin */
+  .pin-badge {
+    position: absolute; top: 12px; left: 12px;
+    padding: 4px 10px; border-radius: 50px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.5px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.2);
+    opacity: 0; transition: all 0.3s;
+  }
+  .pin:hover .pin-badge { opacity: 1; }
+
+  /* ─── GRADIENT BADGE COLORS ─── */
+  .badge-trending  { background: rgba(255,60,172,0.3); color: #FF3CAC; border-color: rgba(255,60,172,0.4); }
+  .badge-new       { background: rgba(0,245,212,0.2); color: #00F5D4; border-color: rgba(0,245,212,0.4); }
+  .badge-popular   { background: rgba(255,107,53,0.3); color: #FF6B35; border-color: rgba(255,107,53,0.4); }
+  .badge-featured  { background: rgba(120,75,160,0.4); color: #c084fc; border-color: rgba(120,75,160,0.5); }
+
+  /* ─── SECTION HEADING ─── */
+  .section-head {
+    padding: 8px 32px 4px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px; font-weight: 700;
+  }
+  .section-title span { background: var(--grad1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .section-sub { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+  .see-all {
+    font-size: 13px; color: var(--text-secondary); cursor: pointer;
+    padding: 6px 14px; border-radius: 50px;
+    border: 1px solid var(--glass-border);
+    transition: all 0.3s;
+  }
+  .see-all:hover { color: #fff; border-color: rgba(255,60,172,0.4); box-shadow: 0 0 12px rgba(255,60,172,0.15); }
+
+  /* ─── LOADER / SCROLL ─── */
+  .load-more {
+    display: flex; justify-content: center; padding: 16px 0 40px;
+  }
+  .spinner {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 3px solid rgba(255,255,255,0.08);
+    border-top-color: var(--pink);
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,60,172,0.4); }
+
+  /* ─── NOTIFICATION DOT ─── */
+  .notif-dot {
+    position: absolute; top:7px; right:7px;
+    width:8px; height:8px; border-radius:50%;
+    background: var(--pink);
+    border: 2px solid var(--bg-dark);
+    animation: pulse 2s ease infinite;
+  }
+  @keyframes pulse {
+    0%,100%{ box-shadow:0 0 0 0 rgba(255,60,172,0.5); }
+    50%    { box-shadow:0 0 0 6px rgba(255,60,172,0); }
+  }
+
+  /* ─── HERO BANNER ─── */
+  .hero {
+    margin: 16px 32px 0;
+    padding: 36px 40px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, rgba(255,60,172,0.15) 0%, rgba(43,134,197,0.15) 100%);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(16px);
+    position: relative; overflow: hidden;
+    animation: heroSlide 0.8s ease both;
+  }
+  @keyframes heroSlide { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:none} }
+  .hero-bg-shapes { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+  .hero-shape {
+    position: absolute; border-radius: 50%;
+    filter: blur(40px); opacity: 0.2;
+  }
+  .hs1 { width:200px;height:200px;background:var(--pink);right:-40px;top:-60px; }
+  .hs2 { width:150px;height:150px;background:var(--cyan);left:30%;bottom:-40px; }
+  .hero-content { position:relative;z-index:1; }
+  .hero-label {
+    display:inline-flex;align-items:center;gap:6px;
+    padding:4px 12px;border-radius:50px;
+    background:rgba(255,60,172,0.2);border:1px solid rgba(255,60,172,0.3);
+    font-size:11px;font-weight:600;color:var(--pink);letter-spacing:1px;text-transform:uppercase;
+    margin-bottom:12px;
+  }
+  .hero-title {
+    font-family:'Syne',sans-serif;font-size:28px;font-weight:800;
+    line-height:1.2;margin-bottom:8px;
+  }
+  .hero-title .g { background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent; }
+  .hero-desc { font-size:14px;color:var(--text-secondary);max-width:480px;line-height:1.6; }
+  .hero-actions { display:flex;gap:12px;margin-top:20px; }
+  .btn-primary {
+    padding:11px 24px;border-radius:50px;background:var(--grad1);
+    color:#fff;font-size:13px;font-weight:600;cursor:pointer;border:none;
+    font-family:'DM Sans',sans-serif;
+    box-shadow:0 4px 20px rgba(255,60,172,0.35);transition:all 0.3s;
+  }
+  .btn-primary:hover { transform:translateY(-2px);box-shadow:0 8px 32px rgba(255,60,172,0.5); }
+  .btn-ghost {
+    padding:11px 24px;border-radius:50px;
+    background:rgba(255,255,255,0.07);
+    border:1px solid var(--glass-border);
+    color:var(--text-primary);font-size:13px;font-weight:600;cursor:pointer;
+    font-family:'DM Sans',sans-serif;transition:all 0.3s;
+  }
+  .btn-ghost:hover { background:rgba(255,255,255,0.12);border-color:rgba(255,255,255,0.25); }
+
+  /* stagger pin animations */
+  .pin:nth-child(1){animation-delay:.05s}
+  .pin:nth-child(2){animation-delay:.1s}
+  .pin:nth-child(3){animation-delay:.15s}
+  .pin:nth-child(4){animation-delay:.2s}
+  .pin:nth-child(5){animation-delay:.25s}
+  .pin:nth-child(6){animation-delay:.3s}
+  .pin:nth-child(7){animation-delay:.35s}
+  .pin:nth-child(8){animation-delay:.4s}
+  .pin:nth-child(9){animation-delay:.45s}
+  .pin:nth-child(10){animation-delay:.5s}
+  .pin:nth-child(n+11){animation-delay:.55s}
+
+  /* ─── MOBILE TOPBAR ─── */
+  .mobile-menu-btn {
+    display:none;
+    width:40px;height:40px;border-radius:10px;
+    background:var(--glass-bg);border:1px solid var(--glass-border);
+    color:#fff;cursor:pointer;align-items:center;justify-content:center;font-size:18px;
+    flex-shrink:0;
+  }
+  @media(max-width:760px){
+    .sidebar{ transform:translateX(-100%); }
+    .sidebar.open{ transform:translateX(0); }
+    .main{ margin-left:0; }
+    .mobile-menu-btn{ display:flex; }
+    .masonry{ columns:2; }
+    .hero{ margin:12px 16px 0; padding:24px 20px; }
+    .hero-title{ font-size:20px; }
+    .topbar{ padding:12px 16px; }
+    .grid-wrap{ padding:8px 12px 40px; }
+    .section-head{ padding:8px 16px 4px; }
+    .filter-bar{ padding:12px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background orbs -->
+<div class="bg-orbs">
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="orb orb4"></div>
+</div>
+
+<!-- ─── SIDEBAR ─── -->
+<aside class="sidebar" id="sidebar">
+  <div class="logo">
+    <div class="logo-icon">✦</div>
+    <span class="logo-text">Pinspire</span>
+  </div>
+
+  <div class="sidebar-section">Menu</div>
+  <div class="nav-item active"><div class="nav-icon">🏠</div> Home</div>
+  <div class="nav-item"><div class="nav-icon">🔍</div> Explore</div>
+  <div class="nav-item"><div class="nav-icon">✨</div> Following</div>
+  <div class="nav-item"><div class="nav-icon">📌</div> Saved</div>
+  <div class="nav-item"><div class="nav-icon">🎨</div> Create</div>
+  <div class="nav-item"><div class="nav-icon">📊</div> Analytics</div>
+
+  <div class="sidebar-section">Categories</div>
+  <div class="category-chip"><div class="chip-dot" style="background:#FF3CAC"></div>Art & Design</div>
+  <div class="category-chip"><div class="chip-dot" style="background:#00F5D4"></div>Architecture</div>
+  <div class="category-chip"><div class="chip-dot" style="background:#FF6B35"></div>Food & Travel</div>
+  <div class="category-chip"><div class="chip-dot" style="background:#FFD23F"></div>Fashion</div>
+  <div class="category-chip"><div class="chip-dot" style="background:#784BA0"></div>Photography</div>
+  <div class="category-chip"><div class="chip-dot" style="background:#2B86C5"></div>Technology</div>
+  <div class="category-chip"><div class="chip-dot" style="background:#f472b6"></div>Illustration</div>
+  <div class="category-chip"><div class="chip-dot" style="background:#34d399"></div>Nature</div>
+
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar">A</div>
+      <div>
+        <div class="user-name">Alex Rivera</div>
+        <div class="user-handle">@alexdesigns</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- ─── MAIN ─── -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <button class="mobile-menu-btn" id="menuBtn">☰</button>
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search-input" type="text" placeholder="Search for ideas, colors, moods…" id="searchInput"/>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn" title="Notifications" style="position:relative">
+        🔔
+        <span class="notif-dot"></span>
+      </button>
+      <button class="icon-btn" title="Messages">💬</button>
+      <button class="create-btn">＋ Create</button>
+    </div>
+  </header>
+
+  <!-- HERO BANNER -->
+  <section class="hero">
+    <div class="hero-bg-shapes">
+      <div class="hero-shape hs1"></div>
+      <div class="hero-shape hs2"></div>
+    </div>
+    <div class="hero-content">
+      <div class="hero-label">✦ Trending now</div>
+      <h1 class="hero-title">Discover ideas that <span class="g">inspire you</span></h1>
+      <p class="hero-desc">Curated pins from the world's most creative minds — art, design, travel, and everything in between.</p>
+      <div class="hero-actions">
+        <button class="btn-primary">Explore Today's Picks</button>
+        <button class="btn-ghost">Browse Collections</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FILTER TABS -->
+  <div class="filter-bar">
+    <div class="filter-tab active">All</div>
+    <div class="filter-tab">Trending 🔥</div>
+    <div class="filter-tab">Art & Design</div>
+    <div class="filter-tab">Architecture</div>
+    <div class="filter-tab">Fashion</div>
+    <div class="filter-tab">Photography</div>
+    <div class="filter-tab">Food</div>
+    <div class="filter-tab">Travel</div>
+    <div class="filter-tab">Technology</div>
+    <div class="filter-tab">Nature</div>
+    <div class="filter-tab">Illustration</div>
+  </div>
+
+  <!-- SECTION HEADING -->
+  <div class="section-head">
+    <div>
+      <div class="section-title">Today's <span>Inspiration</span></div>
+      <div class="section-sub">Fresh ideas updated every hour</div>
+    </div>
+    <div class="see-all">See all →</div>
+  </div>
+
+  <!-- MASONRY GRID -->
+  <div class="grid-wrap">
+    <div class="masonry" id="masonryGrid"></div>
+    <div class="load-more"><div class="spinner" id="spinner" style="display:none"></div></div>
+  </div>
+
+</main>
+
+<script>
+// ─── DATA ───
+const pins = [
+  {
+    img: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80",
+    title: "Neon Architecture in Tokyo", author: "Yuki M.", badge: "trending", badgeClass: "badge-trending",
+    likes: "4.2k", height: 280
+  },
+  {
+    img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&q=80",
+    title: "Abstract Digital Art", author: "Sara K.", badge: "featured", badgeClass: "badge-featured",
+    likes: "2.1k", height: 340
+  },
+  {
+    img: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80",
+    title: "Mountain Sunrise Vista", author: "Tom W.", badge: "new", badgeClass: "badge-new",
+    likes: "5.8k", height: 260
+  },
+  {
+    img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=400&q=80",
+    title: "Retro Synthwave Vibes", author: "Nina B.", badge: "trending", badgeClass: "badge-trending",
+    likes: "3.4k", height: 360
+  },
+  {
+    img: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400&q=80",
+    title: "Abstract Fluid Colors", author: "Leo A.", badge: "popular", badgeClass: "badge-popular",
+    likes: "1.9k", height: 300
+  },
+  {
+    img: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400&q=80",
+    title: "Clean Minimal Workspace", author: "Ann R.", badge: "new", badgeClass: "badge-new",
+    likes: "6.1k", height: 240
+  },
+  {
+    img: "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=400&q=80",
+    title: "Foggy Forest Path", author: "Chris M.", badge: "featured", badgeClass: "badge-featured",
+    likes: "2.7k", height: 380
+  },
+  {
+    img: "https://images.unsplash.com/photo-1567016432779-094069958ea5?w=400&q=80",
+    title: "Cozy Interior Design", author: "Mia S.", badge: "popular", badgeClass: "badge-popular",
+    likes: "4.5k", height: 290
+  },
+  {
+    img: "https://images.unsplash.com/photo-1484515991647-c5760fcecfc7?w=400&q=80",
+    title: "Golden Hour Portrait", author: "Jake L.", badge: "trending", badgeClass: "badge-trending",
+    likes: "8.3k", height: 320
+  },
+  {
+    img: "https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=400&q=80",
+    title: "Ocean Wave Photography", author: "Eva D.", badge: "new", badgeClass: "badge-new",
+    likes: "3.9k", height: 270
+  },
+  {
+    img: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=400&q=80",
+    title: "Geometric UI Concept", author: "Ryo T.", badge: "featured", badgeClass: "badge-featured",
+    likes: "5.2k", height: 350
+  },
+  {
+    img: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&q=80",
+    title: "City Nightscape", author: "Kai H.", badge: "popular", badgeClass: "badge-popular",
+    likes: "7.1k", height: 260
+  },
+  {
+    img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=80",
+    title: "Luxury Living Space", author: "Isla P.", badge: "trending", badgeClass: "badge-trending",
+    likes: "2.8k", height: 310
+  },
+  {
+    img: "https://images.unsplash.com/photo-1567722066597-a58a6fd7e2ca?w=400&q=80",
+    title: "Tropical Drone View", author: "Finn O.", badge: "new", badgeClass: "badge-new",
+    likes: "4.0k", height: 280
+  },
+  {
+    img: "https://images.unsplash.com/photo-1484723091739-30a097e8f929?w=400&q=80",
+    title: "Artisan Food Styling", author: "Luna B.", badge: "popular", badgeClass: "badge-popular",
+    likes: "3.3k", height: 340
+  },
+  {
+    img: "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?w=400&q=80",
+    title: "Autumn Forest Light", author: "Seb V.", badge: "featured", badgeClass: "badge-featured",
+    likes: "6.4k", height: 300
+  },
+  {
+    img: "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=400&q=80",
+    title: "Desert Sunrise Dunes", author: "Zara M.", badge: "trending", badgeClass: "badge-trending",
+    likes: "5.0k", height: 260
+  },
+  {
+    img: "https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=400&q=80",
+    title: "Minimalist Brand Design", author: "Owen L.", badge: "new", badgeClass: "badge-new",
+    likes: "1.6k", height: 370
+  },
+  {
+    img: "https://images.unsplash.com/photo-1527004013197-933c4bb611b3?w=400&q=80",
+    title: "Snow Mountain Peak", author: "Nia F.", badge: "popular", badgeClass: "badge-popular",
+    likes: "9.2k", height: 290
+  },
+  {
+    img: "https://images.unsplash.com/photo-1523821741446-edb2b68bb7a0?w=400&q=80",
+    title: "Pastel Street Fashion", author: "Eli T.", badge: "featured", badgeClass: "badge-featured",
+    likes: "3.7k", height: 320
+  }
+];
+
+// ─── RENDER PINS ───
+function createPin(pin, index) {
+  const div = document.createElement('div');
+  div.className = 'pin';
+  div.style.animationDelay = (index * 0.05) + 's';
+  div.innerHTML = `
+    <div class="pin-img-wrap">
+      <img class="pin-img" src="${pin.img}" alt="${pin.title}" style="height:${pin.height}px; object-fit:cover;" loading="lazy"/>
+      <div class="pin-overlay">
+        <div class="pin-title">${pin.title}</div>
+        <div class="pin-meta">
+          <div class="pin-avatar" style="width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#FF3CAC,#784BA0);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;">${pin.author[0]}</div>
+          <span class="pin-author">${pin.author}</span>
+        </div>
+      </div>
+      <button class="pin-save-btn">Save</button>
+      <button class="pin-more-btn">⋯</button>
+      <div class="pin-badge ${pin.badgeClass}">${pin.badge}</div>
+      <button class="pin-like-btn" onclick="toggleLike(this, event)">♡ ${pin.likes}</button>
+    </div>
+  `;
+  return div;
+}
+
+const grid = document.getElementById('masonryGrid');
+pins.forEach((p, i) => grid.appendChild(createPin(p, i)));
+
+// ─── LIKE TOGGLE ───
+function toggleLike(btn, e) {
+  e.stopPropagation();
+  btn.classList.toggle('liked');
+  btn.textContent = btn.classList.contains('liked')
+    ? '♥ ' + btn.textContent.slice(2)
+    : '♡ ' + btn.textContent.slice(2);
+}
+
+// ─── FILTER TABS ───
+document.querySelectorAll('.filter-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// ─── NAV ITEMS ───
+document.querySelectorAll('.nav-item').forEach(item => {
+  item.addEventListener('click', function() {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// ─── MOBILE SIDEBAR ───
+const menuBtn = document.getElementById('menuBtn');
+const sidebar = document.getElementById('sidebar');
+menuBtn.addEventListener('click', () => sidebar.classList.toggle('open'));
+document.addEventListener('click', (e) => {
+  if (!sidebar.contains(e.target) && e.target !== menuBtn) {
+    sidebar.classList.remove('open');
+  }
+});
+
+// ─── INFINITE SCROLL SIMULATION ───
+let loading = false;
+const spinner = document.getElementById('spinner');
+
+window.addEventListener('scroll', () => {
+  const scrolled = window.scrollY + window.innerHeight;
+  const total = document.body.scrollHeight;
+  if (scrolled >= total - 300 && !loading) {
+    loading = true;
+    spinner.style.display = 'block';
+    setTimeout(() => {
+      // add more pins
+      const shuffled = [...pins].sort(() => Math.random() - 0.5).slice(0, 8);
+      shuffled.forEach((p, i) => grid.appendChild(createPin(p, pins.length + i)));
+      spinner.style.display = 'none';
+      loading = false;
+    }, 1200);
+  }
+});
+
+// ─── SEARCH FILTER ───
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('.pin').forEach(pin => {
+    const title = pin.querySelector('.pin-title')?.textContent.toLowerCase() || '';
+    pin.style.opacity = title.includes(q) || q === '' ? '1' : '0.2';
+    pin.style.transform = title.includes(q) || q === '' ? '' : 'scale(0.96)';
+  });
+});
+</script>
+</body>
+</html>
+
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
@@ -13,4 +843,4 @@
 
 </body>
 
-</html>
+</html> -->
