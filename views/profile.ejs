@@ -1,310 +1,496 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>
-        <%= title %>
-    </title>
+  <title><%= title %></title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Cabinet+Grotesk:wght@300;400;500;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --pink:#FF3CAC; --violet:#784BA0; --blue:#2B86C5;
+      --cyan:#00F5D4; --orange:#FF6B35; --lime:#A8FF3E;
+      --grad1:linear-gradient(135deg,#FF3CAC 0%,#784BA0 50%,#2B86C5 100%);
+      --grad2:linear-gradient(135deg,#00F5D4,#2B86C5);
+      --grad4:linear-gradient(135deg,#A8FF3E,#00F5D4);
+      --bg:#070710;
+      --glass:rgba(255,255,255,0.06);
+      --glass-b:rgba(255,255,255,0.12);
+      --text:#f0f0ff;
+      --muted:rgba(240,240,255,0.45);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{
+      font-family:'Cabinet Grotesk',sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    /* ── BG ── */
+    .bg-scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    .bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,60,172,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,60,172,.04) 1px,transparent 1px);background-size:60px 60px;animation:gridDrift 30s linear infinite;}
+    @keyframes gridDrift{to{background-position:60px 60px;}}
+    .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.15;}
+    .o1{width:500px;height:500px;background:var(--pink);top:-180px;left:-120px;animation:orbA 16s ease-in-out infinite alternate;}
+    .o2{width:400px;height:400px;background:var(--blue);bottom:-120px;right:-80px;animation:orbA 20s ease-in-out infinite alternate-reverse;}
+    .o3{width:300px;height:300px;background:var(--cyan);top:40%;left:40%;animation:orbA 12s ease-in-out infinite alternate;}
+    @keyframes orbA{0%{transform:translate(0,0) scale(1);}100%{transform:translate(40px,30px) scale(1.12);}}
+
+    /* ── PAGE WRAPPER ── */
+    .page{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:40px 20px 80px;}
+
+    /* ── PROFILE CARD ── */
+    .profile-card{
+      background:rgba(255,255,255,.05);
+      border:1px solid var(--glass-b);
+      backdrop-filter:blur(28px);
+      -webkit-backdrop-filter:blur(28px);
+      border-radius:28px;
+      padding:40px 36px 32px;
+      position:relative;
+      overflow:hidden;
+      animation:cardIn .8s cubic-bezier(.22,1,.36,1) both;
+      transform-style:preserve-3d;
+    }
+    @keyframes cardIn{from{opacity:0;transform:translateY(-28px) rotateX(6deg);}to{opacity:1;transform:translateY(0) rotateX(0);}}
+
+    /* card accent top bar */
+    .profile-card::before{
+      content:'';
+      position:absolute;top:0;left:0;right:0;height:3px;
+      background:var(--grad1);
+    }
+    /* card glow shapes */
+    .card-orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.18;pointer-events:none;}
+    .co1{width:280px;height:280px;background:var(--pink);top:-80px;right:-60px;}
+    .co2{width:200px;height:200px;background:var(--cyan);bottom:-60px;left:10%;}
+
+    /* ── PROFILE HEADER LAYOUT ── */
+    .profile-header{
+      display:flex;
+      align-items:flex-start;
+      gap:32px;
+      flex-wrap:wrap;
+    }
+
+    /* ── AVATAR ── */
+    .avatar-wrap{
+      position:relative;flex-shrink:0;
+      animation:avatarIn .9s .15s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes avatarIn{from{opacity:0;transform:scale(.6) rotate(-8deg);}to{opacity:1;transform:scale(1) rotate(0);}}
+    .avatar-ring{
+      width:110px;height:110px;border-radius:50%;
+      padding:3px;
+      background:var(--grad1);
+      box-shadow:0 0 32px rgba(255,60,172,.5),0 0 80px rgba(255,60,172,.15);
+      animation:ringPulse 3s ease infinite;
+    }
+    @keyframes ringPulse{0%,100%{box-shadow:0 0 32px rgba(255,60,172,.5);}50%{box-shadow:0 0 52px rgba(255,60,172,.85),0 0 100px rgba(255,60,172,.2);}}
+    .avatar-ring img{
+      width:100%;height:100%;
+      border-radius:50%;
+      object-fit:cover;
+      border:3px solid var(--bg);
+      display:block;
+    }
+    .pro-badge{
+      position:absolute;bottom:4px;right:4px;
+      background:var(--grad1);
+      color:#fff;font-size:9px;font-weight:800;letter-spacing:1px;
+      padding:3px 8px;border-radius:50px;
+      border:2px solid var(--bg);
+      text-transform:uppercase;
+    }
+
+    /* ── USER INFO ── */
+    .user-info{flex:1;min-width:200px;}
+    .user-info .username-row{
+      display:flex;align-items:center;gap:10px;margin-bottom:3px;
+      animation:slideUp .6s .2s both ease;
+    }
+    @keyframes slideUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+    .fullname{
+      font-family:'Syne',sans-serif;
+      font-size:26px;font-weight:800;
+      background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    }
+    .handle{
+      font-size:14px;color:var(--muted);font-weight:500;
+      animation:slideUp .6s .3s both ease;
+    }
+    .job-title{
+      font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+      color:var(--cyan);margin-bottom:10px;
+      animation:slideUp .6s .35s both ease;
+    }
+    .bio{
+      font-size:13.5px;color:var(--muted);line-height:1.65;max-width:420px;
+      animation:slideUp .6s .4s both ease;
+    }
+
+    /* ── STATS ROW ── */
+    .stats-row{
+      display:flex;gap:24px;margin-top:18px;flex-wrap:wrap;
+      animation:slideUp .6s .45s both ease;
+    }
+    .stat{text-align:center;}
+    .stat-num{
+      font-family:'Syne',sans-serif;font-size:20px;font-weight:800;
+      background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    }
+    .stat-label{font-size:11px;color:var(--muted);font-weight:500;margin-top:1px;}
+
+    /* ── SOCIAL ICONS ── */
+    .social-row{
+      display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;
+      animation:slideUp .6s .5s both ease;
+    }
+    .soc-btn{
+      width:38px;height:38px;border-radius:12px;
+      background:var(--glass);border:1px solid var(--glass-b);
+      display:flex;align-items:center;justify-content:center;
+      font-size:17px;cursor:pointer;
+      transition:all .3s cubic-bezier(.34,1.56,.64,1);
+      color:var(--muted);
+    }
+    .soc-btn:hover{
+      transform:translateY(-5px) scale(1.1);
+      background:rgba(255,60,172,.15);
+      border-color:rgba(255,60,172,.4);
+      color:var(--text);
+      box-shadow:0 8px 24px rgba(255,60,172,.25);
+    }
+
+    /* ── ACTION BUTTONS ── */
+    .action-row{
+      display:flex;gap:12px;margin-top:28px;flex-wrap:wrap;align-items:flex-start;
+      animation:slideUp .6s .55s both ease;
+    }
+    .btn-primary{
+      padding:11px 26px;border-radius:50px;
+      background:var(--grad1);color:#fff;
+      font-size:13px;font-weight:700;cursor:pointer;border:none;
+      font-family:'Cabinet Grotesk',sans-serif;
+      box-shadow:0 4px 22px rgba(255,60,172,.35);
+      transition:all .3s;
+    }
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 34px rgba(255,60,172,.55);}
+    .btn-ghost{
+      padding:11px 26px;border-radius:50px;
+      background:var(--glass);border:1px solid var(--glass-b);
+      color:var(--text);font-size:13px;font-weight:700;cursor:pointer;
+      font-family:'Cabinet Grotesk',sans-serif;transition:all .3s;
+    }
+    .btn-ghost:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.28);}
+
+    /* ── UPLOAD FORM ── */
+    .upload-form{
+      margin-top:32px;
+      background:rgba(255,255,255,.04);
+      border:1px solid var(--glass-b);
+      border-radius:20px;
+      padding:24px 28px;
+      animation:slideUp .6s .6s both ease;
+    }
+    .upload-label{
+      font-family:'Syne',sans-serif;font-size:14px;font-weight:700;
+      margin-bottom:16px;display:block;
+      background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    }
+    .upload-fields{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+    .upload-input{
+      flex:1;min-width:160px;
+      padding:11px 16px;border-radius:50px;
+      background:rgba(255,255,255,.07);
+      border:1px solid var(--glass-b);
+      color:var(--text);
+      font-family:'Cabinet Grotesk',sans-serif;font-size:13px;
+      outline:none;transition:all .3s;
+    }
+    .upload-input::placeholder{color:var(--muted);}
+    .upload-input:focus{border-color:rgba(255,60,172,.5);background:rgba(255,255,255,.1);box-shadow:0 0 0 3px rgba(255,60,172,.1);}
+    .file-label{
+      display:flex;align-items:center;gap:8px;
+      padding:10px 18px;border-radius:50px;
+      background:var(--glass);border:1px solid var(--glass-b);
+      color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;
+      transition:all .3s;white-space:nowrap;
+    }
+    .file-label:hover{color:var(--text);border-color:rgba(255,60,172,.4);}
+    input[type="file"]{display:none;}
+    .upload-submit{
+      padding:11px 26px;border-radius:50px;
+      background:var(--grad2);color:#fff;
+      font-size:13px;font-weight:700;cursor:pointer;border:none;
+      font-family:'Cabinet Grotesk',sans-serif;
+      box-shadow:0 4px 18px rgba(0,245,212,.25);
+      transition:all .3s;white-space:nowrap;
+    }
+    .upload-submit:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,245,212,.4);}
+
+    /* ── DIVIDER ── */
+    .section-divider{
+      display:flex;align-items:center;gap:16px;
+      margin:40px 0 20px;
+      animation:slideUp .6s .65s both ease;
+    }
+    .section-divider h2{
+      font-family:'Syne',sans-serif;font-size:20px;font-weight:700;white-space:nowrap;
+    }
+    .section-divider h2 span{background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .divider-line{flex:1;height:1px;background:linear-gradient(90deg,var(--glass-b),transparent);}
+    .post-count{
+      font-size:12px;color:var(--muted);
+      padding:4px 12px;border-radius:50px;
+      background:var(--glass);border:1px solid var(--glass-b);
+      white-space:nowrap;
+    }
+
+    /* ── POSTS MASONRY ── */
+    .posts-grid{
+      columns:4;column-gap:14px;
+    }
+    @media(max-width:1000px){.posts-grid{columns:3;}}
+    @media(max-width:680px){.posts-grid{columns:2;}}
+
+    /* ── POST CARD ── */
+    .post-card{
+      break-inside:avoid;margin-bottom:14px;
+      border-radius:20px;overflow:hidden;
+      position:relative;cursor:pointer;
+      opacity:0;transform:translateY(60px) scale(.92) rotateX(12deg);
+      transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1);
+      transform-style:preserve-3d;perspective:800px;
+      will-change:transform,opacity;
+    }
+    .post-card.visible{opacity:1;transform:translateY(0) scale(1) rotateX(0);}
+    .post-card:hover .post-inner{
+      box-shadow:0 24px 60px rgba(0,0,0,.65),0 0 40px rgba(255,60,172,.14);
+    }
+    .post-card:hover .post-img{transform:scale(1.07);}
+    .post-card:hover .post-overlay{opacity:1;}
+    .post-card:hover .post-gloss{opacity:1;}
+
+    .post-inner{
+      border-radius:20px;overflow:hidden;position:relative;
+      box-shadow:0 8px 30px rgba(0,0,0,.4);
+      transition:box-shadow .4s;
+    }
+    .post-img{
+      width:100%;display:block;object-fit:cover;
+      transition:transform .6s cubic-bezier(.22,1,.36,1);
+    }
+    .post-gloss{
+      position:absolute;inset:0;
+      background:linear-gradient(135deg,rgba(255,255,255,.16) 0%,transparent 50%,rgba(0,0,0,.08) 100%);
+      opacity:0;transition:opacity .4s;pointer-events:none;border-radius:20px;
+    }
+    .post-overlay{
+      position:absolute;inset:0;
+      background:linear-gradient(to bottom,transparent 30%,rgba(0,0,0,.82) 100%);
+      opacity:0;transition:opacity .35s;
+      display:flex;flex-direction:column;justify-content:flex-end;padding:14px;
+    }
+    .post-caption{
+      font-size:13px;font-weight:600;color:#fff;line-height:1.4;
+      text-shadow:0 2px 8px rgba(0,0,0,.5);
+    }
+    /* 3D tilt handled by JS */
+    .post-save{
+      position:absolute;top:10px;right:10px;
+      padding:7px 16px;border-radius:50px;
+      background:var(--grad1);color:#fff;
+      font-size:11px;font-weight:700;border:none;cursor:pointer;
+      box-shadow:0 4px 16px rgba(255,60,172,.5);
+      font-family:'Cabinet Grotesk',sans-serif;
+      opacity:0;transform:translateY(-6px);
+      transition:all .3s cubic-bezier(.34,1.56,.64,1);
+    }
+    .post-card:hover .post-save{opacity:1;transform:translateY(0);}
+
+    /* empty state */
+    .empty-state{
+      text-align:center;padding:60px 20px;
+      color:var(--muted);
+      animation:slideUp .6s .7s both ease;
+    }
+    .empty-state .empty-icon{font-size:48px;margin-bottom:12px;display:block;}
+    .empty-state p{font-size:15px;}
+
+    ::-webkit-scrollbar{width:5px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px;}
+    ::-webkit-scrollbar-thumb:hover{background:rgba(255,60,172,.4);}
+
+    @media(max-width:600px){
+      .profile-header{flex-direction:column;align-items:center;text-align:center;}
+      .user-info{text-align:center;}
+      .social-row,.action-row,.stats-row{justify-content:center;}
+      .bio{margin:0 auto;}
+      .page{padding:20px 14px 60px;}
+      .upload-fields{flex-direction:column;}
+      .upload-input,.file-label,.upload-submit{width:100%;justify-content:center;}
+    }
+  </style>
 </head>
-
 <body>
-    <style>
-        @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@300&display=swap");
 
-* {
-  margin: 0;
-  padding: 0;
-  font-family: "Nunito", sans-serif;
-}
+<!-- BG SCENE -->
+<div class="bg-scene">
+  <div class="bg-grid"></div>
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="orb o3"></div>
+</div>
 
-:root {
-  --green: #58a497;
-  --yellow: #e09449;
-  --lightgreen1: #a4bdb7;
-  --brown: #8b4448;
-  --gray: gray;
-  --lightgreen2: rgb(164, 189, 183, 0.5);
-  --box: #ededed;
-}
+<div class="page">
 
-body {
-  display: flex;
-  /* align-items: center; */
-  flex-direction: column;
-  min-height: 100vh;
-  /* background: #a4bdb7; */
-}
+  <!-- ── PROFILE CARD ── -->
+  <div class="profile-card">
+    <div class="card-orb co1"></div>
+    <div class="card-orb co2"></div>
 
-/* Content-1:Start */
-.box {
-  width: 90vw;
-  height: fit-content;
-  border-radius: 20px;
-  padding: 10px;
-  text-align: center;
-  background: #ededed;
-}
+    <div class="profile-header">
 
-.box1 {
-  margin-top: 10px;
-}
-
-.content {
-  margin: 15px 2px;
-}
-
-.image img {
-  height: auto;
-  width: 120px;
-  border-radius: 50%;
-
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 5px;
-}
-
-.level {
-  font-size: 0.7em;
-  background-color: rgb(164, 189, 183, 0.5);
-  width: 50px;
-  padding: 3px;
-  border-radius: 5px;
-  font-weight: bolder;
-  letter-spacing: 1px;
-
-  display: block;
-  margin: 0px auto 10px;
-}
-
-.name {
-  font-size: 1.25em;
-  font-weight: bolder;
-  letter-spacing: 1px;
-}
-
-.job_title {
-  font-size: 0.65em;
-  font-weight: bolder;
-  color: gray;
-  margin-top: -2px;
-}
-
-.job_discription {
-  font-size: 0.7em;
-  color: gray;
-  margin: 10px 30px 20px;
-}
-
-.icons {
-  margin: 0px 30px;
-  font-size: 1.5em;
-  display: flex;
-  justify-content: space-around;
-}
-
-.icons button {
-  width: fit-content;
-  height: fit-content;
-  border: none;
-  font-size: 1em;
-}
-
-ion-icon:hover {
-  color: #58a497;
-  transition: 0.5s;
-}
-
-button {
-  width: 130px;
-  height: 40px;
-  border-radius: 10px;
-  font-weight: bolder;
-}
-
-.button {
-  display: flex;
-  justify-content: space-around;
-  flex-direction: row;
-  margin: 20px 30px 0px;
-}
-
-.button .message {
-  background: #ededed;
-  border: 2px solid #000;
-}
-
-.button .connect {
-  background-color: #000;
-  color: #ededed;
-  border: none;
-}
-button.connect:hover {
-  letter-spacing: 1px;
-  transition: 0.5s;
-}
-button.message:hover {
-  letter-spacing: 1px;
-  transition: 0.5s;
-  background: rgba(88, 164, 151, 0.5);
-}
-/* Content-1:End */
-
-/* Content-2:Start */
-.box2 {
-  margin-top: 50px;
-  margin-bottom: 10px;
-}
-
-.box2 img {
-  width: 80px;
-}
-
-.row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 0px 0px 10px;
-}
-
-h5 {
-  font-weight: bolder;
-  font-size: 1em;
-}
-
-.row p {
-  font-size: 0.8em;
-}
-
-.box2 .text {
-  text-align: left;
-}
-
-.box2 .text .name {
-  font-size: 1.1em;
-}
-
-.box2 .text .job_title {
-  font-size: 0.6em;
-  margin-bottom: 10px;
-}
-
-.box2 .text .job_discription {
-  margin: 0px;
-}
-
-.box2 .text .about {
-  font-size: 0.9em;
-  font-weight: bolder;
-}
-.flex{
-  display: flex;
-  flex-wrap: wrap;
-  align-items: start;
-  gap: 20px;
-}
-.box-cards {
-  margin: 20px;
-}
-.card{
-  display: flex;
-}
-/* Content-2:End */
-
-/* Responsiveness:Start */
-@media screen and (max-width: 480px) {
-    .box{
-        width: 100vw;
-        border-radius: 0px;
-    }
-    .button{
-        display: flex;
-        flex-direction: column;
-    }
-    .button button{
-        width: 250px;
-    }
-    button.connect{
-        margin-top: 10px;
-    }
-    .content2{
-        padding: 0px 20px;
-    }
-    .content2 img{
-        width: 60px;
-        height: 60px;
-    }
-}
-/* Responsiveness:End */
-    </style>
-    <section style="display: flex; justify-content: center;" >
-
-        <div class="box">
-            <div class="content">
-                <div class="image">
-                    <img src="https://i.postimg.cc/bryMmCQB/profile-image.jpg" alt="Profile Image">
-                </div>
-                <div class="level">
-                    <!-- <p>PRO</p> -->
-                </div>
-                <div class="text">
-                    <p class="name"><%= user.fullName %></p>
-                    <p style="font-size: 16px; opacity: 0.7;" class="name">@<%= user.username %></p>
-                    <p class="job_title">UI / UX Designer</p>
-                    <p class="job_discription">Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam atque,
-                        ipsam a amet laboriosam eligendi.</p>
-                </div>
-                <div class="icons">
-                    <button>
-                        <ion-icon name="logo-dribbble"></ion-icon>
-                    </button>
-                    <button>
-                        <ion-icon name="logo-instagram"></ion-icon>
-                    </button>
-                    <button>
-                        <ion-icon name="logo-twitter"></ion-icon>
-                    </button>
-                    <button>
-                        <ion-icon name="logo-linkedin"></ion-icon>
-                    </button>
-                    <button>
-                        <ion-icon name="logo-facebook"></ion-icon>
-                    </button>
-                    <button>
-                        <ion-icon name="logo-behance"></ion-icon>
-                    </button>
-                </div>
-                <div class="button">
-                    <div>
-                        <form action="/upload" method="POST" enctype="multipart/form-data">
-                            <input type="text" name="filecaption" placeholder="Caption" /> 
-                            <input type="file" name="file" id="file"  /> 
-                            <!-- style="display: none;" -->
-                            <button type="submit">Upload</button>
-
-                        </form>
-                        <!-- <button class="message" type="button">Post</button> -->
-                    </div>
-                    <div>
-                        <button class="connect" type="button">Connect</button>
-                    </div>
-                </div>
-            </div>
+      <!-- AVATAR -->
+      <div class="avatar-wrap">
+        <div class="avatar-ring">
+          <img src="https://i.postimg.cc/bryMmCQB/profile-image.jpg" alt="Profile Image"/>
         </div>
-    </section>
-    <div class="box-cards">
-      <div class="cards flex ">
-        <% user.posts.forEach(post => { %>
-          <div class="card" style="width: 18rem;">
-            <img src="/images/uploads/<%= post.image %>" alt="Post by <%= user.fullName %>:" style="width: 100%; height: auto;">
-            <p><%= post.caption %></p>
+        <span class="pro-badge">PRO</span>
+      </div>
+
+      <!-- INFO -->
+      <div class="user-info">
+        <div class="username-row">
+          <span class="fullname"><%= user.fullName %></span>
+        </div>
+        <div class="handle">@<%= user.username %></div>
+        <div class="job-title">UI / UX Designer</div>
+        <div class="bio">Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam atque, ipsam a amet laboriosam eligendi.</div>
+
+        <!-- STATS -->
+        <div class="stats-row">
+          <div class="stat">
+            <div class="stat-num"><%= user.posts.length %></div>
+            <div class="stat-label">Posts</div>
           </div>
-        <% }) %>
+          <div class="stat">
+            <div class="stat-num">4.2k</div>
+            <div class="stat-label">Followers</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">318</div>
+            <div class="stat-label">Following</div>
+          </div>
+        </div>
+
+        <!-- SOCIAL -->
+        <div class="social-row">
+          <button class="soc-btn" title="Dribbble"><ion-icon name="logo-dribbble"></ion-icon></button>
+          <button class="soc-btn" title="Instagram"><ion-icon name="logo-instagram"></ion-icon></button>
+          <button class="soc-btn" title="Twitter"><ion-icon name="logo-twitter"></ion-icon></button>
+          <button class="soc-btn" title="LinkedIn"><ion-icon name="logo-linkedin"></ion-icon></button>
+          <button class="soc-btn" title="Facebook"><ion-icon name="logo-facebook"></ion-icon></button>
+          <button class="soc-btn" title="Behance"><ion-icon name="logo-behance"></ion-icon></button>
+        </div>
+
+        <!-- CTA BUTTONS -->
+        <div class="action-row">
+          <button class="btn-ghost">💬 Message</button>
+          <button class="btn-primary">＋ Connect</button>
+        </div>
       </div>
     </div>
 
-    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
-    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-</body>
+    <!-- UPLOAD FORM -->
+    <div class="upload-form">
+      <span class="upload-label">✦ Upload a new Pin</span>
+      <form action="/upload" method="POST" enctype="multipart/form-data">
+        <div class="upload-fields">
+          <input class="upload-input" type="text" name="filecaption" placeholder="Add a caption…"/>
+          <label class="file-label" for="file">
+            <ion-icon name="cloud-upload-outline"></ion-icon> Choose file
+          </label>
+          <input type="file" name="file" id="file"/>
+          <button class="upload-submit" type="submit">Publish ✦</button>
+        </div>
+      </form>
+    </div>
 
+  </div><!-- /profile-card -->
+
+  <!-- ── POSTS SECTION ── -->
+  <div class="section-divider">
+    <h2>My <span>Pins</span></h2>
+    <div class="divider-line"></div>
+    <span class="post-count"><%= user.posts.length %> posts</span>
+  </div>
+
+  <% if(user.posts.length === 0) { %>
+    <div class="empty-state">
+      <span class="empty-icon">📌</span>
+      <p>No pins yet — upload your first one above!</p>
+    </div>
+  <% } else { %>
+    <div class="posts-grid" id="postsGrid">
+      <% user.posts.forEach((post, index) => { %>
+        <div class="post-card" style="--i:<%= index %>">
+          <div class="post-inner">
+            <img class="post-img" src="/images/uploads/<%= post.image %>" alt="Post by <%= user.fullName %>"/>
+            <div class="post-gloss"></div>
+            <div class="post-overlay">
+              <div class="post-caption"><%= post.caption %></div>
+            </div>
+            <button class="post-save">Save</button>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+
+</div><!-- /page -->
+
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+<script>
+  /* ── SCROLL CASCADE ── */
+  const io = new IntersectionObserver(entries => {
+    const visible = entries.filter(e => e.isIntersecting);
+    visible.forEach((entry, i) => {
+      setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      io.unobserve(entry.target);
+    });
+  }, {threshold: 0.07, rootMargin: '0px 0px -30px 0px'});
+
+  document.querySelectorAll('.post-card').forEach(el => io.observe(el));
+
+  /* ── 3D TILT ── */
+  document.querySelectorAll('.post-card').forEach(card => {
+    const inner = card.querySelector('.post-inner');
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width  - 0.5;
+      const y = (e.clientY - r.top)  / r.height - 0.5;
+      inner.style.transform = `rotateY(${x*18}deg) rotateX(${-y*14}deg) scale(1.04)`;
+      inner.style.transition = 'transform .08s ease';
+    });
+    card.addEventListener('mouseleave', () => {
+      inner.style.transform = '';
+      inner.style.transition = 'transform .55s cubic-bezier(.22,1,.36,1)';
+    });
+  });
+
+  /* ── FILE INPUT LABEL UPDATE ── */
+  document.getElementById('file').addEventListener('change', function() {
+    const label = document.querySelector('.file-label');
+    label.innerHTML = this.files[0]
+      ? `<ion-icon name="checkmark-circle-outline"></ion-icon> ${this.files[0].name.slice(0,20)}…`
+      : `<ion-icon name="cloud-upload-outline"></ion-icon> Choose file`;
+  });
+</script>
+</body>
 </html>
