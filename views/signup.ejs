@@ -1,80 +1,633 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pinterest Login</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <link rel="stylesheet" href="/stylesheets/style.css">
-</head>
-
-<body>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pinspire — Create Account</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Cabinet+Grotesk:wght@300;400;500;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
   <style>
-    .masonry-container {
-      column-count: 5;
-      /* Adjust based on screen size */
-      column-gap: 15px;
-      padding: 20px;
+    :root {
+      --pink:#FF3CAC; --violet:#784BA0; --blue:#2B86C5;
+      --cyan:#00F5D4; --orange:#FF6B35; --lime:#A8FF3E;
+      --grad1:linear-gradient(135deg,#FF3CAC 0%,#784BA0 50%,#2B86C5 100%);
+      --grad2:linear-gradient(135deg,#00F5D4,#2B86C5);
+      --grad4:linear-gradient(135deg,#A8FF3E,#00F5D4);
+      --bg:#070710;
+      --glass:rgba(255,255,255,0.06);
+      --glass-b:rgba(255,255,255,0.13);
+      --text:#f0f0ff;
+      --muted:rgba(240,240,255,0.45);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html,body{
+      height:100%;
+      font-family:'Cabinet Grotesk',sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      overflow:hidden;
     }
 
-    .pin {
-      margin-bottom: 15px;
-      break-inside: avoid;
+    /* ── BG SCENE ── */
+    .bg-scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    .bg-grid{
+      position:absolute;inset:0;
+      background-image:
+        linear-gradient(rgba(255,60,172,.04) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,60,172,.04) 1px,transparent 1px);
+      background-size:60px 60px;
+      animation:gridDrift 30s linear infinite;
+    }
+    @keyframes gridDrift{to{background-position:60px 60px;}}
+    .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.16;}
+    .o1{width:560px;height:560px;background:var(--pink);top:-180px;left:-120px;animation:orbA 16s ease-in-out infinite alternate;}
+    .o2{width:460px;height:460px;background:var(--blue);bottom:-130px;right:-100px;animation:orbA 20s ease-in-out infinite alternate-reverse;}
+    .o3{width:320px;height:320px;background:var(--cyan);top:38%;left:38%;animation:orbA 12s ease-in-out infinite alternate;}
+    .o4{width:240px;height:240px;background:var(--lime);bottom:15%;left:15%;animation:orbA 10s ease-in-out infinite alternate-reverse;}
+    @keyframes orbA{0%{transform:translate(0,0) scale(1);}100%{transform:translate(45px,35px) scale(1.12);}}
+
+    /* ── MASONRY BG ── */
+    .masonry-bg{
+      position:fixed;inset:0;z-index:1;
+      column-count:5;column-gap:10px;padding:10px;
+      overflow:hidden;
+      mask-image:radial-gradient(ellipse 75% 85% at 50% 50%, transparent 25%, black 100%);
+      -webkit-mask-image:radial-gradient(ellipse 75% 85% at 50% 50%, transparent 25%, black 100%);
+      pointer-events:none;
+    }
+    .bg-pin{
+      break-inside:avoid;margin-bottom:10px;
+      border-radius:16px;overflow:hidden;
+      opacity:0;animation:pinFadeIn .8s ease forwards;
+    }
+    .bg-pin img{width:100%;display:block;object-fit:cover;border-radius:16px;}
+    @keyframes pinFadeIn{from{opacity:0;transform:translateY(18px);}to{opacity:.5;transform:translateY(0);}}
+
+    /* ── LOGIN TOP BTN ── */
+    .login-topbtn{
+      position:fixed;top:20px;right:20px;z-index:200;
+      padding:10px 22px;border-radius:50px;
+      background:var(--glass);border:1px solid var(--glass-b);
+      color:var(--text);font-size:13px;font-weight:700;
+      text-decoration:none;
+      backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+      transition:all .3s;font-family:'Cabinet Grotesk',sans-serif;
+    }
+    .login-topbtn:hover{
+      background:rgba(255,255,255,.12);
+      border-color:rgba(255,60,172,.45);
+      box-shadow:0 0 20px rgba(255,60,172,.2);
+      transform:translateY(-2px);
     }
 
-    .pin img {
-      width: 100%;
-      border-radius: 16px;
-      /* Pinterest's signature rounded corners */
-      display: block;
+    /* ── TOAST ── */
+    .toast{
+      position:fixed;top:24px;left:50%;
+      transform:translateX(-50%) translateY(-90px);
+      z-index:999;
+      display:flex;align-items:center;gap:12px;
+      padding:14px 22px;border-radius:50px;
+      backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+      border:1px solid rgba(255,60,172,.4);
+      background:rgba(20,10,30,.88);
+      box-shadow:0 8px 40px rgba(255,60,172,.3);
+      font-size:13.5px;font-weight:600;color:var(--text);
+      white-space:nowrap;
+      transition:transform .5s cubic-bezier(.34,1.56,.64,1),opacity .4s;
+      opacity:0;pointer-events:none;
+    }
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto;}
+    .toast.hide{transform:translateX(-50%) translateY(-90px);opacity:0;}
+    .toast.t-success{border-color:rgba(0,245,212,.5);box-shadow:0 8px 40px rgba(0,245,212,.25);}
+    .toast.t-warn   {border-color:rgba(255,107,53,.5);box-shadow:0 8px 40px rgba(255,107,53,.3);}
+    .toast.t-error  {border-color:rgba(255,60,172,.5);box-shadow:0 8px 40px rgba(255,60,172,.35);}
+    .toast-icon{font-size:18px;flex-shrink:0;}
+    .toast-msg span{color:var(--pink);}
+    .toast.t-warn .toast-msg span{color:var(--orange);}
+    .toast.t-success .toast-msg span{color:var(--cyan);}
+
+    /* ── MODAL SCROLL WRAPPER ── */
+    .modal-wrap{
+      position:fixed;inset:0;z-index:100;
+      display:flex;align-items:center;justify-content:center;
+      padding:20px;
+      overflow-y:auto;
+    }
+
+    /* ── MODAL ── */
+    .modal{
+      width:100%;max-width:420px;
+      background:rgba(10,10,20,.78);
+      backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);
+      border:1px solid var(--glass-b);
+      border-radius:28px;
+      padding:36px 32px 32px;
+      position:relative;overflow:hidden;
+      animation:modalIn .8s cubic-bezier(.22,1,.36,1) both;
+      margin:auto;
+    }
+    @keyframes modalIn{from{opacity:0;transform:translateY(28px) scale(.94);}to{opacity:1;transform:translateY(0) scale(1);}}
+    .modal::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad1);}
+
+    /* corner glows */
+    .modal-glow{position:absolute;border-radius:50%;filter:blur(60px);opacity:.17;pointer-events:none;}
+    .mg1{width:200px;height:200px;background:var(--pink);top:-60px;right:-40px;}
+    .mg2{width:180px;height:180px;background:var(--cyan);bottom:-50px;left:-30px;}
+
+    /* ── LOGO ── */
+    .modal-logo{
+      display:flex;align-items:center;justify-content:center;
+      margin-bottom:16px;
+      animation:logoBounce .8s .15s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes logoBounce{from{opacity:0;transform:scale(.5);}to{opacity:1;transform:scale(1);}}
+    .logo-mark{
+      width:44px;height:44px;border-radius:14px;
+      background:var(--grad1);
+      display:flex;align-items:center;justify-content:center;
+      font-size:20px;color:#fff;
+      box-shadow:0 0 28px rgba(255,60,172,.55);
+      animation:logoPulse 3s ease infinite;
+    }
+    @keyframes logoPulse{0%,100%{box-shadow:0 0 28px rgba(255,60,172,.55);}50%{box-shadow:0 0 50px rgba(255,60,172,.9),0 0 100px rgba(255,60,172,.2);}}
+    .logo-text{
+      font-family:'Syne',sans-serif;font-size:22px;font-weight:800;
+      margin-left:10px;
+      background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    }
+
+    /* ── HEADINGS ── */
+    .modal-heading{
+      font-family:'Syne',sans-serif;font-size:20px;font-weight:700;
+      text-align:center;margin-bottom:4px;
+      animation:slideUp .6s .2s both ease;
+    }
+    .modal-sub{
+      font-size:13px;color:var(--muted);text-align:center;
+      margin-bottom:22px;
+      animation:slideUp .6s .25s both ease;
+    }
+    @keyframes slideUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+    /* ── FORM GROUP ── */
+    .form-group{position:relative;margin-bottom:12px;}
+    .form-group:nth-child(1){animation:slideUp .6s .28s both ease;}
+    .form-group:nth-child(2){animation:slideUp .6s .33s both ease;}
+    .form-group:nth-child(3){animation:slideUp .6s .38s both ease;}
+    .form-group:nth-child(4){animation:slideUp .6s .43s both ease;}
+
+    .form-icon{
+      position:absolute;left:16px;top:50%;transform:translateY(-50%);
+      color:var(--muted);font-size:14px;pointer-events:none;
+    }
+
+    /* password toggle eye */
+    .eye-toggle{
+      position:absolute;right:16px;top:50%;transform:translateY(-50%);
+      color:var(--muted);font-size:14px;cursor:pointer;
+      transition:color .3s;
+      background:none;border:none;padding:0;
+    }
+    .eye-toggle:hover{color:var(--text);}
+
+    /* validation tick */
+    .valid-tick{
+      position:absolute;right:16px;top:50%;transform:translateY(-50%);
+      font-size:14px;color:var(--cyan);
+      opacity:0;transition:opacity .3s;pointer-events:none;
+    }
+    .form-group.valid .valid-tick{opacity:1;}
+    .form-group.valid .form-input{
+      border-color:rgba(0,245,212,.45)!important;
+    }
+
+    .form-input{
+      width:100%;padding:13px 44px 13px 44px;
+      background:rgba(255,255,255,.07);
+      border:1px solid var(--glass-b);
+      border-radius:14px;
+      color:var(--text);
+      font-family:'Cabinet Grotesk',sans-serif;font-size:14px;
+      outline:none;transition:all .35s;
+    }
+    .form-input::placeholder{color:var(--muted);}
+    .form-input:focus{
+      border-color:rgba(255,60,172,.55);
+      background:rgba(255,255,255,.1);
+      box-shadow:0 0 0 3px rgba(255,60,172,.1);
+    }
+    .form-input.input-error{
+      border-color:rgba(255,60,172,.7)!important;
+      background:rgba(255,60,172,.07)!important;
+      box-shadow:0 0 0 3px rgba(255,60,172,.14)!important;
+    }
+
+    /* ── FIELD HINT ── */
+    .field-hint{
+      font-size:11px;font-weight:600;margin-top:5px;padding-left:14px;
+      display:none;transition:all .3s;
+    }
+    .field-hint.visible{display:block;}
+    .field-hint.err{color:#FF3CAC;}
+    .field-hint.ok {color:var(--cyan);}
+
+    /* ── PASSWORD STRENGTH ── */
+    .strength-bar{
+      display:flex;gap:4px;margin-top:8px;padding-left:2px;
+      display:none;
+    }
+    .strength-bar.visible{display:flex;}
+    .strength-seg{
+      flex:1;height:3px;border-radius:4px;
+      background:rgba(255,255,255,.1);
+      transition:background .4s;
+    }
+    .strength-label{font-size:10.5px;font-weight:700;margin-top:4px;padding-left:2px;color:var(--muted);display:none;}
+    .strength-label.visible{display:block;}
+
+    /* ── SHAKE ── */
+    @keyframes shake{
+      0%,100%{transform:translateX(0);}
+      15%{transform:translateX(-7px);}
+      30%{transform:translateX(7px);}
+      45%{transform:translateX(-5px);}
+      60%{transform:translateX(5px);}
+      75%{transform:translateX(-3px);}
+      90%{transform:translateX(3px);}
+    }
+    .shake{animation:shake .45s cubic-bezier(.36,.07,.19,.97) both;}
+
+    /* ── REGISTER BTN ── */
+    .register-btn{
+      width:100%;padding:13px;border-radius:50px;
+      background:var(--grad1);color:#fff;
+      font-size:14px;font-weight:700;
+      border:none;cursor:pointer;
+      font-family:'Cabinet Grotesk',sans-serif;
+      box-shadow:0 4px 22px rgba(255,60,172,.35);
+      transition:all .3s;margin-top:4px;
+      animation:slideUp .6s .5s both ease;
+    }
+    .register-btn:hover{transform:translateY(-2px);box-shadow:0 8px 34px rgba(255,60,172,.55);}
+    .register-btn:active{transform:translateY(0);}
+    .register-btn:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+
+    /* ── OR ── */
+    .or-row{
+      display:flex;align-items:center;gap:12px;
+      margin:20px 0;
+      animation:slideUp .6s .55s both ease;
+    }
+    .or-line{flex:1;height:1px;background:var(--glass-b);}
+    .or-text{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:1px;}
+
+    /* ── SOCIAL ── */
+    .social-btn{
+      width:100%;padding:12px;border-radius:50px;
+      background:var(--glass);border:1px solid var(--glass-b);
+      color:var(--text);font-size:13px;font-weight:600;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+      font-family:'Cabinet Grotesk',sans-serif;
+      transition:all .3s;margin-bottom:10px;
+      text-decoration:none;
+      animation:slideUp .6s .6s both ease;
+    }
+    .social-btn:last-of-type{animation-delay:.65s;}
+    .social-btn:hover{background:rgba(255,255,255,.11);border-color:rgba(255,255,255,.25);transform:translateY(-2px);}
+    .social-btn .fab,.social-btn .fas{font-size:16px;}
+    .social-btn.gg .fab{color:#EA4335;}
+    .social-btn.qr .fas{color:var(--cyan);}
+
+    /* ── FOOTER ── */
+    .modal-footer{
+      margin-top:20px;border-top:1px solid var(--glass-b);
+      padding-top:16px;text-align:center;
+      animation:slideUp .6s .7s both ease;
+    }
+    .modal-footer p{font-size:11.5px;color:var(--muted);line-height:1.65;}
+    .modal-footer b{color:rgba(240,240,255,.7);}
+    .login-link{
+      display:inline-block;margin-top:10px;
+      font-size:13px;font-weight:700;
+      text-decoration:none;
+      background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      transition:opacity .3s;
+    }
+    .login-link:hover{opacity:.8;}
+
+    @media(max-width:480px){
+      .modal{padding:28px 18px 24px;border-radius:20px;}
+      .masonry-bg{column-count:3;}
     }
   </style>
+</head>
+<body>
 
-  <div class="masonry-container">
-    <% ids.forEach(function(url) { %>
-      <div class="pin">
-        <img src="<%= url %>" alt="Pinterest Image" loading="lazy">
-      </div>
-      <% }); %>
-  </div>
+<!-- BG -->
+<div class="bg-scene">
+  <div class="bg-grid"></div>
+  <div class="orb o1"></div><div class="orb o2"></div>
+  <div class="orb o3"></div><div class="orb o4"></div>
+</div>
 
-  <div class="overlay" style="background: rgba(0, 0, 0, 0.5);">
-     <a href="/signup" class="upbtn">Sign up</a>
-    <div class="container">
-      <div class="content">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/0/08/Pinterest-logo.png" alt="Pinterest Logo"
-          class="img1">
-        <p class="header">Make an account to see more</p>
-
-        <form action="/register" method="POST">
-          <input type="email" name="email" placeholder="Email" class="detail" required>
-          <input type="text" name="username" placeholder="Username" class="detail" required>
-          <input type="text" name="fullName" placeholder="Full Name" class="detail" required>
-          <input type="password" name="password" placeholder="Password" class="detail" required>
-          <input type="submit" value="Register Account" class="btn int">
-        </form>
-
-        <a href="/forgot" class="forgot-link">Forgot your password?</a>
-        <p class="or">OR</p>
-
-        <button class="btn ggl">
-          <i class="fab fa-google"></i> Continue with Google
-        </button>
-        <button class="btn qr">
-          <i class="fa-solid fa-qrcode"></i> Use QR code
-        </button>
-
-        <footer>
-          <p>By continuing, you agree to Pinterest's <b>Terms of Service</b> and acknowledge you've read our <b>Privacy
-              Policy.</b></p>
-          <hr>
-          <p>Not on Pinterest yet? <span class="signup-link">Sign up</span></p>
-        </footer>
-      </div>
+<!-- MASONRY BG -->
+<div class="masonry-bg">
+  <% ids.forEach(function(url, i) { %>
+    <div class="bg-pin" style="animation-delay:<%= i * 0.04 %>s">
+      <img src="<%= url %>" alt="" loading="lazy"/>
     </div>
+  <% }); %>
+</div>
+
+<!-- LOGIN BTN -->
+<a href="/login" class="login-topbtn">Log in</a>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon">⚠️</span>
+  <span class="toast-msg" id="toastMsg"></span>
+</div>
+
+<!-- MODAL -->
+<div class="modal-wrap">
+  <div class="modal">
+    <div class="modal-glow mg1"></div>
+    <div class="modal-glow mg2"></div>
+
+    <!-- LOGO -->
+    <div class="modal-logo">
+      <div class="logo-mark">✦</div>
+      <span class="logo-text">Pinspire</span>
+    </div>
+
+    <h1 class="modal-heading">Create your account</h1>
+    <p class="modal-sub">Join millions discovering ideas every day</p>
+
+    <!-- FORM -->
+    <form action="/register" method="POST" id="registerForm" novalidate>
+
+      <!-- EMAIL -->
+      <div class="form-group" id="grp-email">
+        <i class="fas fa-envelope form-icon"></i>
+        <input class="form-input" type="email" name="email" id="emailInput"
+          placeholder="Email address" autocomplete="email" required/>
+        <span class="valid-tick"><i class="fas fa-circle-check"></i></span>
+        <div class="field-hint err" id="emailHint"></div>
+      </div>
+
+      <!-- USERNAME -->
+      <div class="form-group" id="grp-username">
+        <i class="fas fa-at form-icon"></i>
+        <input class="form-input" type="text" name="username" id="usernameInput"
+          placeholder="Username" autocomplete="username" required/>
+        <span class="valid-tick"><i class="fas fa-circle-check"></i></span>
+        <div class="field-hint err" id="usernameHint"></div>
+      </div>
+
+      <!-- FULL NAME -->
+      <div class="form-group" id="grp-fullName">
+        <i class="fas fa-user form-icon"></i>
+        <input class="form-input" type="text" name="fullName" id="fullNameInput"
+          placeholder="Full Name" autocomplete="name" required/>
+        <span class="valid-tick"><i class="fas fa-circle-check"></i></span>
+        <div class="field-hint err" id="fullNameHint"></div>
+      </div>
+
+      <!-- PASSWORD -->
+      <div class="form-group" id="grp-password">
+        <i class="fas fa-lock form-icon"></i>
+        <input class="form-input" type="password" name="password" id="passwordInput"
+          placeholder="Password" autocomplete="new-password" required/>
+        <button type="button" class="eye-toggle" id="eyeBtn" tabindex="-1">
+          <i class="fas fa-eye" id="eyeIcon"></i>
+        </button>
+        <!-- strength bar -->
+        <div class="strength-bar" id="strengthBar">
+          <div class="strength-seg" id="s1"></div>
+          <div class="strength-seg" id="s2"></div>
+          <div class="strength-seg" id="s3"></div>
+          <div class="strength-seg" id="s4"></div>
+        </div>
+        <div class="strength-label" id="strengthLabel"></div>
+        <div class="field-hint err" id="passwordHint"></div>
+      </div>
+
+      <button class="register-btn" type="submit" id="registerBtn">Create Account ✦</button>
+    </form>
+
+    <!-- OR -->
+    <div class="or-row">
+      <div class="or-line"></div>
+      <span class="or-text">OR</span>
+      <div class="or-line"></div>
+    </div>
+
+    <!-- SOCIAL -->
+    <a href="#" class="social-btn gg">
+      <i class="fab fa-google"></i> Continue with Google
+    </a>
+    <a href="#" class="social-btn qr">
+      <i class="fas fa-qrcode"></i> Use QR Code
+    </a>
+
+    <!-- FOOTER -->
+    <div class="modal-footer">
+      <p>By continuing, you agree to Pinspire's<br/>
+        <b>Terms of Service</b> and acknowledge you've read our <b>Privacy Policy.</b>
+      </p>
+      <a href="/login" class="login-link">Already on Pinspire? Log in →</a>
+    </div>
+
   </div>
+</div>
+
+<script>
+(function () {
+
+  /* ── ELEMENTS ── */
+  const form         = document.getElementById('registerForm');
+  const emailInput   = document.getElementById('emailInput');
+  const userInput    = document.getElementById('usernameInput');
+  const nameInput    = document.getElementById('fullNameInput');
+  const passInput    = document.getElementById('passwordInput');
+  const eyeBtn       = document.getElementById('eyeBtn');
+  const eyeIcon      = document.getElementById('eyeIcon');
+  const strengthBar  = document.getElementById('strengthBar');
+  const strengthLbl  = document.getElementById('strengthLabel');
+  const toast        = document.getElementById('toast');
+  const toastIcon    = document.getElementById('toastIcon');
+  const toastMsg     = document.getElementById('toastMsg');
+
+  /* ── TOAST ── */
+  let toastTimer;
+  function showToast(message, type = 'error') {
+    toast.className = 'toast t-' + type;
+    toastIcon.textContent = type === 'success' ? '✅' : type === 'warn' ? '⚠️' : '🚫';
+    toastMsg.innerHTML = message;
+    toast.classList.add('show');
+    toast.classList.remove('hide');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.classList.add('hide');
+      toast.classList.remove('show');
+    }, 4000);
+  }
+
+  /* ── FIELD HINT ── */
+  function setHint(id, msg, type) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = msg;
+    el.className = 'field-hint ' + type + (msg ? ' visible' : '');
+  }
+  function clearHint(id) { setHint(id, '', ''); }
+
+  /* ── INPUT MARK VALID / INVALID ── */
+  function markField(grpId, state) {
+    const grp = document.getElementById(grpId);
+    if (!grp) return;
+    const input = grp.querySelector('.form-input');
+    grp.classList.toggle('valid', state === 'ok');
+    input.classList.toggle('input-error', state === 'err');
+    if (state === 'err') {
+      input.classList.add('shake');
+      input.addEventListener('animationend', () => input.classList.remove('shake'), { once: true });
+    }
+  }
+
+  /* ── VALIDATION RULES ── */
+  const rules = {
+    email(v) {
+      if (!v) return 'Email is required.';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return 'Enter a valid email address.';
+      return '';
+    },
+    username(v) {
+      if (!v) return 'Username is required.';
+      if (v.length < 3) return 'Username must be at least 3 characters.';
+      if (/\s/.test(v)) return 'Username cannot contain spaces.';
+      // if (!/^[a-zA-Z0-9_]+$/.test(v)) return 'Only letters, numbers & underscores allowed.';
+      return '';
+    },
+    fullName(v) {
+      if (!v) return 'Full name is required.';
+      if (v.trim().length < 2) return 'Name is too short.';
+      return '';
+    },
+    password(v) {
+      if (!v) return 'Password is required.';
+      if (v.length < 6) return 'Password must be at least 6 characters.';
+      return '';
+    }
+  };
+
+  /* ── PASSWORD STRENGTH ── */
+  const segs   = [document.getElementById('s1'),document.getElementById('s2'),document.getElementById('s3'),document.getElementById('s4')];
+  const levels = [
+    {label:'Too weak', colors:['#FF3CAC','','','']},
+    {label:'Weak',     colors:['#FF6B35','#FF6B35','','']},
+    {label:'Good',     colors:['#FFD23F','#FFD23F','#FFD23F','']},
+    {label:'Strong 🔥',colors:['#A8FF3E','#A8FF3E','#A8FF3E','#00F5D4']},
+  ];
+
+  function getStrength(v) {
+    let score = 0;
+    if (v.length >= 8) score++;
+    if (/[A-Z]/.test(v)) score++;
+    if (/[0-9]/.test(v)) score++;
+    if (/[^a-zA-Z0-9]/.test(v)) score++;
+    return score;
+  }
+
+  passInput.addEventListener('input', function () {
+    const v = this.value;
+    clearHint('passwordHint');
+    document.getElementById('grp-password').querySelector('.form-input').classList.remove('input-error');
+    if (!v) {
+      strengthBar.classList.remove('visible');
+      strengthLbl.classList.remove('visible');
+      return;
+    }
+    strengthBar.classList.add('visible');
+    strengthLbl.classList.add('visible');
+    const score = getStrength(v);
+    const lvl = Math.max(0, score - 1);
+    segs.forEach((s, i) => s.style.background = levels[lvl].colors[i] || 'rgba(255,255,255,.1)');
+    strengthLbl.textContent = levels[lvl].label;
+    strengthLbl.style.color = levels[lvl].colors[0];
+  });
+
+  /* ── LIVE VALIDATION (blur) ── */
+  function liveValidate(input, grpId, hintId, ruleKey) {
+    input.addEventListener('blur', function () {
+      const err = rules[ruleKey](this.value.trim());
+      if (err) {
+        markField(grpId, 'err');
+        setHint(hintId, '✕ ' + err, 'err');
+      } else {
+        markField(grpId, 'ok');
+        clearHint(hintId);
+      }
+    });
+    input.addEventListener('input', function () {
+      // clear error state while typing
+      document.getElementById(grpId).querySelector('.form-input').classList.remove('input-error');
+      clearHint(hintId);
+    });
+  }
+
+  liveValidate(emailInput,  'grp-email',    'emailHint',    'email');
+  liveValidate(userInput,   'grp-username', 'usernameHint', 'username');
+  liveValidate(nameInput,   'grp-fullName', 'fullNameHint', 'fullName');
+  liveValidate(passInput,   'grp-password', 'passwordHint', 'password');
+
+  /* ── PASSWORD SHOW/HIDE ── */
+  eyeBtn.addEventListener('click', function () {
+    const show = passInput.type === 'password';
+    passInput.type = show ? 'text' : 'password';
+    eyeIcon.className = show ? 'fas fa-eye-slash' : 'fas fa-eye';
+  });
+
+  /* ── FORM SUBMIT VALIDATION ── */
+  form.addEventListener('submit', function (e) {
+    const fields = [
+      { input: emailInput,  grp: 'grp-email',    hint: 'emailHint',    rule: 'email'    },
+      { input: userInput,   grp: 'grp-username', hint: 'usernameHint', rule: 'username' },
+      { input: nameInput,   grp: 'grp-fullName', hint: 'fullNameHint', rule: 'fullName' },
+      { input: passInput,   grp: 'grp-password', hint: 'passwordHint', rule: 'password' },
+    ];
+
+    let firstErr = null;
+    let hasError = false;
+
+    fields.forEach(({ input, grp, hint, rule }) => {
+      const err = rules[rule](input.value.trim());
+      if (err) {
+        hasError = true;
+        markField(grp, 'err');
+        setHint(hint, '✕ ' + err, 'err');
+        if (!firstErr) firstErr = { input, err, rule };
+      } else {
+        markField(grp, 'ok');
+        clearHint(hint);
+      }
+    });
+
+    if (hasError) {
+      e.preventDefault();
+      const msgs = {
+        email:    '<span>Invalid email.</span> Please enter a valid email address.',
+        username: '<span>Username issue.</span> Check the requirements.',
+        fullName: '<span>Name required.</span> Please enter your full name.',
+        password: '<span>Weak password.</span> Use at least 6 characters.',
+      };
+      showToast(msgs[firstErr.rule] || 'Please fix the errors above.', 'error');
+      firstErr.input.focus();
+    }
+  });
+
+})();
+</script>
 
 </body>
-
 </html>
