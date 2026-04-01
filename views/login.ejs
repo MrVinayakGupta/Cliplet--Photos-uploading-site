@@ -1,94 +1,548 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pinterest Login</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="/stylesheets/style.css">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pinspire — Log In</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Cabinet+Grotesk:wght@300;400;500;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  <style>
+    :root {
+      --pink:#FF3CAC; --violet:#784BA0; --blue:#2B86C5;
+      --cyan:#00F5D4; --orange:#FF6B35; --lime:#A8FF3E;
+      --grad1:linear-gradient(135deg,#FF3CAC 0%,#784BA0 50%,#2B86C5 100%);
+      --grad2:linear-gradient(135deg,#00F5D4,#2B86C5);
+      --bg:#070710;
+      --glass:rgba(255,255,255,0.06);
+      --glass-b:rgba(255,255,255,0.13);
+      --text:#f0f0ff;
+      --muted:rgba(240,240,255,0.45);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html,body{height:100%;font-family:'Cabinet Grotesk',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
+
+    /* ── BG GRID + ORBS ── */
+    .bg-scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    .bg-grid{
+      position:absolute;inset:0;
+      background-image:
+        linear-gradient(rgba(255,60,172,.04) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,60,172,.04) 1px,transparent 1px);
+      background-size:60px 60px;
+      animation:gridDrift 30s linear infinite;
+    }
+    @keyframes gridDrift{to{background-position:60px 60px;}}
+    .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.17;}
+    .o1{width:550px;height:550px;background:var(--pink);top:-180px;left:-120px;animation:orbA 16s ease-in-out infinite alternate;}
+    .o2{width:450px;height:450px;background:var(--blue);bottom:-130px;right:-100px;animation:orbA 20s ease-in-out infinite alternate-reverse;}
+    .o3{width:320px;height:320px;background:var(--cyan);top:38%;left:38%;animation:orbA 12s ease-in-out infinite alternate;}
+    .o4{width:240px;height:240px;background:var(--orange);top:12%;right:22%;animation:orbA 14s ease-in-out infinite alternate-reverse;}
+    @keyframes orbA{0%{transform:translate(0,0) scale(1);}100%{transform:translate(45px,35px) scale(1.12);}}
+
+    /* ── MASONRY BG ── */
+    .masonry-bg{
+      position:fixed;
+      inset:0;
+      z-index:1;
+      column-count:5;column-gap:10px;padding:10px;
+      overflow:hidden;
+      mask-image:radial-gradient(ellipse 70% 80% at 50% 50%, transparent 30%, black 100%);
+      -webkit-mask-image:radial-gradient(ellipse 70% 80% at 50% 50%, transparent 30%, black 100%);
+      pointer-events:none;
+    }
+    .bg-pin{
+      break-inside:avoid;margin-bottom:10px;
+      border-radius:16px;overflow:hidden;
+      opacity:0;
+      animation:pinFadeIn .8s ease forwards;
+    }
+    .bg-pin img{width:100%;display:block;object-fit:cover;border-radius:16px;}
+    @keyframes pinFadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:.55;transform:translateY(0);}}
+
+    /* ── SIGNUP BTN TOP RIGHT ── */
+    .signup-topbtn{
+      position:fixed;top:20px;right:20px;z-index:200;
+      padding:10px 22px;border-radius:50px;
+      background:var(--glass);border:1px solid var(--glass-b);
+      color:var(--text);font-size:13px;font-weight:700;
+      text-decoration:none;
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+      transition:all .3s;
+      font-family:'Cabinet Grotesk',sans-serif;
+    }
+    .signup-topbtn:hover{
+      background:rgba(255,255,255,.12);
+      border-color:rgba(255,60,172,.45);
+      box-shadow:0 0 20px rgba(255,60,172,.2);
+      transform:translateY(-2px);
+    }
+
+    /* ── CENTER MODAL ── */
+    .modal-wrap{
+      position:fixed;inset:0;z-index:100;
+      display:flex;align-items:center;justify-content:center;
+      padding:20px;
+    }
+    .modal{
+      width:100%;max-width:400px;
+      background:rgba(10,10,20,.75);
+      backdrop-filter:blur(32px);
+      -webkit-backdrop-filter:blur(32px);
+      border:1px solid var(--glass-b);
+      border-radius:28px;
+      padding:36px 32px 32px;
+      position:relative;
+      overflow:hidden;
+      animation:modalIn .8s cubic-bezier(.22,1,.36,1) both;
+    }
+    @keyframes modalIn{from{opacity:0;transform:translateY(28px) scale(.94);}to{opacity:1;transform:translateY(0) scale(1);}}
+
+    /* top gradient bar */
+    .modal::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:3px;
+      background:var(--grad1);
+    }
+    /* corner glow */
+    .modal-glow{
+      position:absolute;width:200px;height:200px;border-radius:50%;
+      filter:blur(60px);opacity:.18;pointer-events:none;
+    }
+    .mg1{background:var(--pink);top:-60px;right:-40px;}
+    .mg2{background:var(--cyan);bottom:-50px;left:-30px;}
+
+    /* ── LOGO ── */
+    .modal-logo{
+      display:flex;align-items:center;justify-content:center;
+      margin-bottom:20px;
+      animation:logoBounce .8s .15s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes logoBounce{from{opacity:0;transform:scale(.5);}to{opacity:1;transform:scale(1);}}
+    .logo-mark{
+      width:46px;height:46px;border-radius:14px;
+      background:var(--grad1);
+      display:flex;align-items:center;justify-content:center;
+      font-size:22px;font-weight:800;color:#fff;
+      box-shadow:0 0 28px rgba(255,60,172,.55),0 0 70px rgba(255,60,172,.15);
+      animation:logoPulse 3s ease infinite;
+    }
+    @keyframes logoPulse{0%,100%{box-shadow:0 0 28px rgba(255,60,172,.55);}50%{box-shadow:0 0 48px rgba(255,60,172,.9),0 0 100px rgba(255,60,172,.2);}}
+    .logo-text{
+      font-family:'Syne',sans-serif;font-size:22px;font-weight:800;
+      margin-left:10px;
+      background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    }
+
+    /* ── HEADING ── */
+    .modal-heading{
+      font-family:'Syne',sans-serif;font-size:20px;font-weight:700;
+      text-align:center;margin-bottom:6px;
+      animation:slideUp .6s .2s both ease;
+    }
+    .modal-sub{
+      font-size:13px;color:var(--muted);text-align:center;
+      margin-bottom:24px;
+      animation:slideUp .6s .25s both ease;
+    }
+    @keyframes slideUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+    /* ── ERROR ── */
+    .error-box{
+      background:rgba(255,60,172,.12);
+      border:1px solid rgba(255,60,172,.35);
+      border-radius:12px;padding:10px 14px;
+      font-size:12.5px;color:#FF3CAC;font-weight:600;
+      margin-bottom:16px;
+      display:flex;align-items:center;gap:8px;
+      animation:slideUp .4s ease both;
+    }
+
+    /* ── FORM ── */
+    .form-group{
+      position:relative;margin-bottom:14px;
+      animation:slideUp .6s .3s both ease;
+    }
+    .form-group:nth-child(2){animation-delay:.35s;}
+    .form-icon{
+      position:absolute;left:16px;top:50%;transform:translateY(-50%);
+      color:var(--muted);font-size:14px;pointer-events:none;
+    }
+    .form-input{
+      width:100%;padding:13px 16px 13px 44px;
+      background:rgba(255,255,255,.07);
+      border:1px solid var(--glass-b);
+      border-radius:14px;
+      color:var(--text);
+      font-family:'Cabinet Grotesk',sans-serif;font-size:14px;
+      outline:none;transition:all .35s;
+    }
+    .form-input::placeholder{color:var(--muted);}
+    .form-input:focus{
+      border-color:rgba(255,60,172,.55);
+      background:rgba(255,255,255,.1);
+      box-shadow:0 0 0 3px rgba(255,60,172,.1),0 0 24px rgba(255,60,172,.07);
+    }
+
+    /* ── FORGOT ── */
+    .forgot-row{
+      text-align:right;margin-bottom:20px;
+      animation:slideUp .6s .4s both ease;
+    }
+    .forgot-row a{
+      font-size:12px;color:var(--muted);text-decoration:none;transition:color .3s;
+    }
+    .forgot-row a:hover{color:var(--cyan);}
+
+    /* ── LOGIN BTN ── */
+    .login-btn{
+      width:100%;padding:13px;border-radius:50px;
+      background:var(--grad1);color:#fff;
+      font-size:14px;font-weight:700;
+      border:none;cursor:pointer;
+      font-family:'Cabinet Grotesk',sans-serif;
+      box-shadow:0 4px 22px rgba(255,60,172,.35);
+      transition:all .3s;
+      animation:slideUp .6s .45s both ease;
+    }
+    .login-btn:hover{transform:translateY(-2px);box-shadow:0 8px 34px rgba(255,60,172,.55);}
+    .login-btn:active{transform:translateY(0);}
+
+    /* ── TOAST NOTIFICATION ── */
+    .toast{
+      position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-90px);
+      z-index:999;
+      display:flex;align-items:center;gap:12px;
+      padding:14px 22px;border-radius:50px;
+      backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+      border:1px solid rgba(255,60,172,.4);
+      background:rgba(20,10,30,.85);
+      box-shadow:0 8px 40px rgba(255,60,172,.3),0 0 0 1px rgba(255,60,172,.15);
+      font-size:13.5px;font-weight:600;color:var(--text);
+      white-space:nowrap;
+      transition:transform .5s cubic-bezier(.34,1.56,.64,1),opacity .4s;
+      opacity:0;pointer-events:none;
+    }
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto;}
+    .toast.hide{transform:translateX(-50%) translateY(-90px);opacity:0;}
+    .toast-icon{font-size:18px;flex-shrink:0;}
+    .toast-msg span{color:var(--pink);}
+
+    /* toast variants */
+    .toast.warn-user{border-color:rgba(255,107,53,.5);box-shadow:0 8px 40px rgba(255,107,53,.3);}
+    .toast.warn-user .toast-icon{filter:hue-rotate(30deg);}
+    .toast.warn-pass{border-color:rgba(255,60,172,.5);box-shadow:0 8px 40px rgba(255,60,172,.35);}
+
+    /* ── INPUT ERROR STATE ── */
+    .form-input.input-error{
+      border-color:rgba(255,60,172,.7)!important;
+      background:rgba(255,60,172,.07)!important;
+      box-shadow:0 0 0 3px rgba(255,60,172,.15)!important;
+    }
+    .form-input.input-warn{
+      border-color:rgba(255,107,53,.7)!important;
+      background:rgba(255,107,53,.07)!important;
+      box-shadow:0 0 0 3px rgba(255,107,53,.15)!important;
+    }
+    .field-msg{
+      font-size:11.5px;font-weight:600;
+      margin-top:6px;padding-left:14px;
+      display:none;
+    }
+    .field-msg.visible{display:block;}
+    .field-msg.err{color:#FF3CAC;}
+    .field-msg.warn{color:#FF6B35;}
+
+    /* ── SHAKE ANIMATION ── */
+    @keyframes shake{
+      0%,100%{transform:translateX(0);}
+      15%{transform:translateX(-7px);}
+      30%{transform:translateX(7px);}
+      45%{transform:translateX(-5px);}
+      60%{transform:translateX(5px);}
+      75%{transform:translateX(-3px);}
+      90%{transform:translateX(3px);}
+    }
+    .shake{animation:shake .5s cubic-bezier(.36,.07,.19,.97) both;}
+
+    /* ── OR DIVIDER ── */
+    .or-row{
+      display:flex;align-items:center;gap:12px;
+      margin:20px 0;
+      animation:slideUp .6s .5s both ease;
+    }
+    .or-line{flex:1;height:1px;background:var(--glass-b);}
+    .or-text{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:1px;}
+
+    /* ── SOCIAL BTNS ── */
+    .social-btn{
+      width:100%;padding:12px;border-radius:50px;
+      background:var(--glass);border:1px solid var(--glass-b);
+      color:var(--text);font-size:13px;font-weight:600;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+      font-family:'Cabinet Grotesk',sans-serif;
+      transition:all .3s;margin-bottom:10px;
+      text-decoration:none;
+      animation:slideUp .6s .55s both ease;
+    }
+    .social-btn:nth-child(2){animation-delay:.6s;}
+    .social-btn:hover{
+      background:rgba(255,255,255,.11);
+      border-color:rgba(255,255,255,.25);
+      transform:translateY(-2px);
+    }
+    .social-btn .fab{font-size:16px;}
+    .social-btn.fb .fab{color:#1877F2;}
+    .social-btn.gg .fab{color:#EA4335;}
+
+    /* ── FOOTER ── */
+    .modal-footer{
+      margin-top:20px;border-top:1px solid var(--glass-b);
+      padding-top:16px;text-align:center;
+      animation:slideUp .6s .65s both ease;
+    }
+    .modal-footer p{font-size:11.5px;color:var(--muted);line-height:1.6;}
+    .modal-footer b{color:rgba(240,240,255,.7);}
+    .modal-footer .signup-link{
+      display:inline-block;margin-top:10px;
+      font-size:13px;font-weight:700;color:var(--text);
+      text-decoration:none;
+      background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+      transition:opacity .3s;
+    }
+    .modal-footer .signup-link:hover{opacity:.8;}
+
+    @media(max-width:480px){
+      .modal{padding:28px 20px 24px;}
+      .masonry-bg{column-count:3;}
+    }
+  </style>
 </head>
-
 <body>
-    <style>
-        .masonry-container {
-            column-count: 5;
-            /* Adjust based on screen size */
-            column-gap: 15px;
-            padding: 20px;
-        }
 
-        .pin {
-            margin-bottom: 15px;
-            break-inside: avoid;
-        }
+<!-- BG SCENE -->
+<div class="bg-scene">
+  <div class="bg-grid"></div>
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="orb o3"></div>
+  <div class="orb o4"></div>
+</div>
 
-        .pin img {
-            width: 100%;
-            border-radius: 16px;
-            /* Pinterest's signature rounded corners */
-            display: block;
-        }
-        .error{
-            color: red;
-            font-size: 14px;
-            font-weight: 500;
-            margin-top: 10px;
-        }
-    </style>
+<!-- MASONRY BG IMAGES -->
+<div class="masonry-bg" id="masonryBg">
+  <% ids.forEach(function(url, i) { %>
+    <div class="bg-pin" style="animation-delay:<%= i * 0.04 %>s">
+      <img src="<%= url %>" alt="" loading="lazy"/>
+    </div>
+  <% }); %>
+</div>
 
-    <a href="/signup" class="upbtn">Sign up</a>
+<!-- SIGN UP TOP BTN -->
+<a href="/signup" class="signup-topbtn">Sign up</a>
 
-    <div class="masonry-container">
-        <% ids.forEach(function(url) { %>
-        <div class="pin">
-            <img src="<%= url %>" alt="Pinterest Image" loading="lazy">
-        </div>
-        <% }); %>
+<!-- TOAST NOTIFICATION -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon">⚠️</span>
+  <span class="toast-msg" id="toastMsg"></span>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-wrap">
+  <div class="modal">
+    <div class="modal-glow mg1"></div>
+    <div class="modal-glow mg2"></div>
+
+    <!-- LOGO -->
+    <div class="modal-logo">
+      <div class="logo-mark">✦</div>
+      <span class="logo-text">Pinspire</span>
     </div>
 
-    <div class="overlay" style="background: rgba(0, 0, 0, 0.5);">
-        <div class="container">
-            <div class="content">
-                <!--pinterest logo-->
-                <img src="https://i.pinimg.com/originals/d3/d1/75/d3d175e560ae133f1ed5cd4ec173751a.png" alt="pin logo"
-                    class="img1" />
-                <p class="header">log in to see more</p>
-                <% if(error.length ) { %>
-                    <p class="error">hey  do you know tere liye rakha pallu sambhale<%= console.error(error); %></p>
-                    <% } %>
-                <form action="/login" method="POST">
-                    <input type="text" name="username" placeholder="Username" class="detail" /><br />
-                    <input type="password" name="password" placeholder="Password" class="detail" /><br />
-                    <input type="submit" value="Log in" class="btn int">
-                </form>
+    <h1 class="modal-heading">Welcome back</h1>
+    <p class="modal-sub">Log in to discover your world</p>
 
-                <a href="/forgot">Forgot your password?</a>
+    <!-- EJS ERROR META (read by JS) -->
+    <% if(error && error.length) { %>
+      <div id="errorMeta"
+        data-error="<%= error %>"
+        data-type="<%= typeof errorType !== 'undefined' ? errorType : 'general' %>"
+        style="display:none">
+      </div>
+    <% } %>
 
-                <p class="or">OR</p>
-                <button class="btn fbk">
-                    <i class="fab fa-facebook fa-lg" style="padding-right: 10px"></i><a href="#">Continue
-                        with
-                        Facebook</a></button><br />
-                <button class="btn ggl">
-                    <i class="fab fa-google" style=" padding-right: 10px"></i><a
-                        href="#">Continue
-                        with
-                        Google</a>
-                </button>
+    <!-- FORM -->
+    <form action="/login" method="POST" id="loginForm">
 
-                <footer>
-                    <p>
-                        By continuing, you agree to Pinterest's
-                        <b>Terms of Service, Privacy policy.</b>
-                    </p>
-                    <hr />
-                    <p>Not on Pinterest yet? Sign up</p>
-                </footer>
-            </div>
+      <!-- USERNAME -->
+      <div class="form-group">
+        <i class="fas fa-user form-icon"></i>
+        <input class="form-input" type="text" name="username" id="usernameInput"
+          placeholder="Username" autocomplete="username"/>
+        <div class="field-msg warn" id="usernameMsg">
+          <i class="fas fa-triangle-exclamation"></i>&nbsp;No account found with this username.
         </div>
+      </div>
+
+      <!-- PASSWORD -->
+      <div class="form-group">
+        <i class="fas fa-lock form-icon"></i>
+        <input class="form-input" type="password" name="password" id="passwordInput"
+          placeholder="Password" autocomplete="current-password"/>
+        <div class="field-msg err" id="passwordMsg">
+          <i class="fas fa-circle-xmark"></i>&nbsp;Incorrect password. Please try again.
+        </div>
+      </div>
+
+      <div class="forgot-row">
+        <a href="/forgot">Forgot password?</a>
+      </div>
+      <button class="login-btn" type="submit" id="loginBtn">Log in ✦</button>
+    </form>
+
+    <!-- OR -->
+    <div class="or-row">
+      <div class="or-line"></div>
+      <span class="or-text">OR</span>
+      <div class="or-line"></div>
     </div>
+
+    <!-- SOCIAL -->
+    <a href="#" class="social-btn fb">
+      <i class="fab fa-facebook"></i> Continue with Facebook
+    </a>
+    <a href="#" class="social-btn gg">
+      <i class="fab fa-google"></i> Continue with Google
+    </a>
+
+    <!-- FOOTER -->
+    <div class="modal-footer">
+      <p>By continuing, you agree to Pinspire's<br/><b>Terms of Service &amp; Privacy Policy.</b></p>
+      <a href="/signup" class="signup-link">Not on Pinspire yet? Sign up →</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function() {
+  const meta       = document.getElementById('errorMeta');
+  const toast      = document.getElementById('toast');
+  const toastIcon  = document.getElementById('toastIcon');
+  const toastMsg   = document.getElementById('toastMsg');
+  const userInput  = document.getElementById('usernameInput');
+  const passInput  = document.getElementById('passwordInput');
+  const userMsg    = document.getElementById('usernameMsg');
+  const passMsg    = document.getElementById('passwordMsg');
+
+  /* ── Show toast ── */
+  function showToast(message, type) {
+    toast.className = 'toast ' + (type === 'username' ? 'warn-user' : 'warn-pass');
+
+    if (type === 'username') {
+      toastIcon.textContent = '👤';
+      toastMsg.innerHTML = '<span>Username</span> not found. Check and try again.';
+    } else if (type === 'password') {
+      toastIcon.textContent = '🔒';
+      toastMsg.innerHTML = '<span>Wrong password.</span> Please try again.';
+    } else {
+      toastIcon.textContent = '⚠️';
+      toastMsg.innerHTML = message || 'Something went wrong. Please try again.';
+    }
+
+    // animate in
+    requestAnimationFrame(() => {
+      toast.classList.add('show');
+      toast.classList.remove('hide');
+    });
+
+    // auto dismiss after 4s
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => {
+      toast.classList.add('hide');
+      toast.classList.remove('show');
+    }, 4000);
+  }
+
+  /* ── Highlight the correct field ── */
+  function highlightField(type) {
+    // reset both first
+    userInput.classList.remove('input-error', 'input-warn');
+    passInput.classList.remove('input-error', 'input-warn');
+    userMsg.classList.remove('visible');
+    passMsg.classList.remove('visible');
+
+    if (type === 'username') {
+      userInput.classList.add('input-warn');
+      userInput.classList.add('shake');
+      userMsg.classList.add('visible');
+      userInput.focus();
+      userInput.addEventListener('animationend', () => userInput.classList.remove('shake'), { once: true });
+    } else if (type === 'password') {
+      passInput.classList.add('input-error');
+      passInput.classList.add('shake');
+      passMsg.classList.add('visible');
+      passInput.focus();
+      passInput.select();
+      passInput.addEventListener('animationend', () => passInput.classList.remove('shake'), { once: true });
+    } else {
+      // general: shake both
+      userInput.classList.add('input-warn', 'shake');
+      passInput.classList.add('input-error', 'shake');
+      [userInput, passInput].forEach(el =>
+        el.addEventListener('animationend', () => el.classList.remove('shake'), { once: true })
+      );
+    }
+  }
+
+  /* ── Clear errors on typing ── */
+  userInput.addEventListener('input', () => {
+    userInput.classList.remove('input-warn', 'input-error');
+    userMsg.classList.remove('visible');
+  });
+  passInput.addEventListener('input', () => {
+    passInput.classList.remove('input-error', 'input-warn');
+    passMsg.classList.remove('visible');
+  });
+
+  /* ── Process server error on page load ── */
+  if (meta) {
+    const errType = meta.dataset.type || 'general';
+    const errText = meta.dataset.error || '';
+
+    // slight delay so toast appears after page animation
+    setTimeout(() => {
+      showToast(errText, errType);
+      highlightField(errType);
+    }, 600);
+  }
+
+  /* ── Client-side empty-field check before submit ── */
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    const u = userInput.value.trim();
+    const p = passInput.value.trim();
+
+    if (!u && !p) {
+      e.preventDefault();
+      showToast('Please enter your username and password.', 'general');
+      highlightField('general');
+      return;
+    }
+    if (!u) {
+      e.preventDefault();
+      showToast('', 'username');
+      highlightField('username');
+      return;
+    }
+    if (!p) {
+      e.preventDefault();
+      showToast('', 'password');
+      highlightField('password');
+      return;
+    }
+  });
+
+})();
+</script>
 
 </body>
-
 </html>
