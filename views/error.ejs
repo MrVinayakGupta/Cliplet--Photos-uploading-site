@@ -1,16 +1,355 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Error</title>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pinspire — Something went wrong</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Cabinet+Grotesk:wght@300;400;500;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --pink:#FF3CAC; --violet:#784BA0; --blue:#2B86C5;
+      --cyan:#00F5D4; --orange:#FF6B35; --lime:#A8FF3E;
+      --grad1:linear-gradient(135deg,#FF3CAC 0%,#784BA0 50%,#2B86C5 100%);
+      --grad2:linear-gradient(135deg,#00F5D4,#2B86C5);
+      --grad-orange:linear-gradient(135deg,#FF6B35,#FFD23F);
+      --bg:#070710;
+      --glass:rgba(255,255,255,0.06);
+      --glass-b:rgba(255,255,255,0.12);
+      --text:#f0f0ff;
+      --muted:rgba(240,240,255,0.45);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html,body{height:100%;font-family:'Cabinet Grotesk',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;}
+
+    /* ── BG SCENE ── */
+    .bg-scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    .bg-grid{
+      position:absolute;inset:0;
+      background-image:
+        linear-gradient(rgba(255,60,172,.04) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,60,172,.04) 1px,transparent 1px);
+      background-size:60px 60px;
+      animation:gridDrift 30s linear infinite;
+    }
+    @keyframes gridDrift{to{background-position:60px 60px;}}
+    .orb{position:absolute;border-radius:50%;filter:blur(90px);}
+    .o1{width:600px;height:600px;background:var(--orange);opacity:.14;top:-200px;left:-150px;animation:orbA 16s ease-in-out infinite alternate;}
+    .o2{width:500px;height:500px;background:var(--pink);opacity:.12;bottom:-150px;right:-100px;animation:orbA 20s ease-in-out infinite alternate-reverse;}
+    .o3{width:350px;height:350px;background:var(--violet);opacity:.15;top:40%;left:40%;animation:orbA 12s ease-in-out infinite alternate;}
+    @keyframes orbA{0%{transform:translate(0,0) scale(1);}100%{transform:translate(50px,40px) scale(1.15);}}
+
+    /* broken grid lines — visual glitch effect */
+    .glitch-lines{
+      position:fixed;inset:0;z-index:0;pointer-events:none;
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 3px,
+          rgba(255,60,172,.015) 3px,
+          rgba(255,60,172,.015) 4px
+        );
+      animation:scanlines 8s linear infinite;
+    }
+    @keyframes scanlines{0%{background-position:0 0;}100%{background-position:0 100px;}}
+
+    /* ── PAGE ── */
+    .page{
+      position:relative;z-index:1;
+      min-height:100vh;
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      padding:40px 20px;
+    }
+
+    /* ── MAIN ERROR CARD ── */
+    .error-card{
+      width:100%;max-width:600px;
+      background:rgba(10,10,20,.75);
+      backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);
+      border:1px solid var(--glass-b);
+      border-radius:28px;
+      padding:48px 40px 40px;
+      position:relative;overflow:hidden;
+      animation:cardIn .8s cubic-bezier(.22,1,.36,1) both;
+      text-align:center;
+    }
+    @keyframes cardIn{from{opacity:0;transform:translateY(32px) scale(.94);}to{opacity:1;transform:translateY(0) scale(1);}}
+
+    /* top orange/pink gradient bar */
+    .error-card::before{
+      content:'';position:absolute;top:0;left:0;right:0;height:3px;
+      background:var(--grad-orange);
+    }
+
+    /* glows */
+    .card-glow{position:absolute;border-radius:50%;filter:blur(70px);pointer-events:none;}
+    .cg1{width:260px;height:260px;background:rgba(255,107,53,.2);top:-80px;right:-60px;}
+    .cg2{width:200px;height:200px;background:rgba(255,60,172,.15);bottom:-50px;left:-40px;}
+
+    /* ── LOGO ── */
+    .logo-row{
+      display:flex;align-items:center;justify-content:center;gap:10px;
+      margin-bottom:32px;
+      animation:slideDown .7s .1s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes slideDown{from{opacity:0;transform:translateY(-16px);}to{opacity:1;transform:translateY(0);}}
+    .logo-mark{
+      width:36px;height:36px;border-radius:11px;
+      background:var(--grad1);
+      display:flex;align-items:center;justify-content:center;
+      font-size:17px;
+      box-shadow:0 0 22px rgba(255,60,172,.5);
+      animation:logoPulse 3s ease infinite;
+    }
+    @keyframes logoPulse{0%,100%{box-shadow:0 0 22px rgba(255,60,172,.5);}50%{box-shadow:0 0 40px rgba(255,60,172,.85);}}
+    .logo-txt{
+      font-family:'Syne',sans-serif;font-size:18px;font-weight:800;
+      background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    }
+
+    /* ── BIG ERROR ICON ── */
+    .error-icon-wrap{
+      position:relative;display:inline-block;
+      margin-bottom:24px;
+      animation:iconPop .8s .2s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes iconPop{from{opacity:0;transform:scale(.4) rotate(-15deg);}to{opacity:1;transform:scale(1) rotate(0);}}
+    .error-icon{
+      font-size:72px;
+      display:block;
+      filter:drop-shadow(0 0 24px rgba(255,107,53,.6));
+      animation:iconFloat 4s ease-in-out infinite;
+    }
+    @keyframes iconFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+
+    /* error code badge */
+    .error-code-badge{
+      position:absolute;top:-8px;right:-16px;
+      font-family:'Syne',sans-serif;font-size:11px;font-weight:800;
+      padding:4px 10px;border-radius:50px;
+      background:var(--grad-orange);
+      color:#fff;letter-spacing:1px;
+      box-shadow:0 4px 16px rgba(255,107,53,.5);
+      animation:badgePop .6s .6s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes badgePop{from{opacity:0;transform:scale(.5);}to{opacity:1;transform:scale(1);}}
+
+    /* ── MESSAGE ── */
+    .error-title{
+      font-family:'Syne',sans-serif;font-size:26px;font-weight:800;
+      margin-bottom:10px;line-height:1.2;
+      animation:slideUp .6s .25s both ease;
+    }
+    .error-title .hl{background:var(--grad-orange);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .error-msg{
+      font-size:15px;color:var(--muted);line-height:1.65;
+      max-width:420px;margin:0 auto 28px;
+      animation:slideUp .6s .3s both ease;
+    }
+    @keyframes slideUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+    /* ── ACTION BUTTONS ── */
+    .action-row{
+      display:flex;gap:12px;justify-content:center;flex-wrap:wrap;
+      margin-bottom:32px;
+      animation:slideUp .6s .38s both ease;
+    }
+    .btn-primary{
+      padding:12px 28px;border-radius:50px;background:var(--grad1);color:#fff;
+      font-size:13px;font-weight:700;cursor:pointer;border:none;
+      font-family:'Cabinet Grotesk',sans-serif;
+      box-shadow:0 4px 22px rgba(255,60,172,.35);transition:all .3s;
+      text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+    }
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 34px rgba(255,60,172,.55);}
+    .btn-ghost{
+      padding:12px 28px;border-radius:50px;
+      background:var(--glass);border:1px solid var(--glass-b);
+      color:var(--text);font-size:13px;font-weight:700;cursor:pointer;
+      font-family:'Cabinet Grotesk',sans-serif;transition:all .3s;
+      text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+    }
+    .btn-ghost:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.28);}
+
+    /* ── DIVIDER ── */
+    .divider{
+      height:1px;background:var(--glass-b);margin-bottom:24px;
+      animation:slideUp .6s .42s both ease;
+    }
+
+    /* ── STACK TRACE ── */
+    .stack-wrap{
+      text-align:left;
+      animation:slideUp .6s .48s both ease;
+    }
+    .stack-label{
+      display:flex;align-items:center;gap:8px;
+      font-size:11px;font-weight:700;letter-spacing:1.5px;
+      color:var(--muted);text-transform:uppercase;margin-bottom:12px;
+      cursor:pointer;user-select:none;
+    }
+    .stack-label .chevron{
+      display:inline-block;transition:transform .3s;font-size:10px;color:var(--orange);
+    }
+    .stack-label.open .chevron{transform:rotate(90deg);}
+    .stack-body{
+      display:none;
+      background:rgba(0,0,0,.4);
+      border:1px solid rgba(255,107,53,.2);
+      border-radius:14px;
+      padding:18px 20px;
+      overflow-x:auto;
+      font-family:'Courier New',monospace;
+      font-size:12px;
+      line-height:1.75;
+      color:rgba(255,107,53,.85);
+      max-height:260px;
+      overflow-y:auto;
+      scrollbar-width:thin;
+      scrollbar-color:rgba(255,107,53,.3) transparent;
+      white-space:pre-wrap;
+      word-break:break-word;
+    }
+    .stack-body::-webkit-scrollbar{width:4px;height:4px;}
+    .stack-body::-webkit-scrollbar-thumb{background:rgba(255,107,53,.3);border-radius:4px;}
+    .stack-body.open{display:block;animation:fadeIn .3s ease;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+    /* ── NO STACK ── */
+    .no-stack{
+      display:flex;align-items:center;gap:10px;
+      padding:14px 18px;border-radius:14px;
+      background:rgba(255,107,53,.08);
+      border:1px solid rgba(255,107,53,.2);
+      font-size:13px;color:rgba(255,107,53,.9);
+      animation:slideUp .6s .45s both ease;
+    }
+    .no-stack-icon{font-size:18px;flex-shrink:0;}
+
+    /* ── FOOTER ── */
+    .error-footer{
+      margin-top:32px;font-size:12px;color:var(--muted);
+      animation:slideUp .6s .55s both ease;
+    }
+    .error-footer a{
+      color:var(--muted);text-decoration:none;
+      transition:color .3s;
+    }
+    .error-footer a:hover{color:var(--text);}
+
+    ::-webkit-scrollbar{width:5px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px;}
+
+    @media(max-width:500px){
+      .error-card{padding:36px 22px 28px;}
+      .error-title{font-size:21px;}
+      .error-icon{font-size:56px;}
+      .action-row{flex-direction:column;align-items:center;}
+      .btn-primary,.btn-ghost{width:100%;justify-content:center;}
+    }
+  </style>
 </head>
 <body>
-  <h1><%= message %></h1>
 
-  <% if (error.stack) { %>
-    <h2>Stack Trace (development only):</h2>
-    <pre><%= error.stack %></pre>
-  <% } else { %>
-    <p>Something went wrong. Please try again later.</p>
-  <% } %>
+<!-- BG -->
+<div class="bg-scene">
+  <div class="bg-grid"></div>
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="orb o3"></div>
+</div>
+<div class="glitch-lines"></div>
+
+<!-- PAGE -->
+<div class="page">
+  <div class="error-card">
+    <div class="card-glow cg1"></div>
+    <div class="card-glow cg2"></div>
+
+    <!-- LOGO -->
+    <div class="logo-row">
+      <div class="logo-mark">✦</div>
+      <span class="logo-txt">Pinspire</span>
+    </div>
+
+    <!-- ICON + CODE -->
+    <div class="error-icon-wrap">
+      <span class="error-icon">💥</span>
+      <% if (typeof error !== 'undefined' && error.status) { %>
+        <span class="error-code-badge"><%= error.status %></span>
+      <% } else { %>
+        <span class="error-code-badge">ERROR</span>
+      <% } %>
+    </div>
+
+    <!-- TITLE + MESSAGE -->
+    <h1 class="error-title">
+      <% if (typeof message !== 'undefined' && message) { %>
+        <span class="hl"><%= message %></span>
+      <% } else { %>
+        <span class="hl">Oops! Something broke.</span>
+      <% } %>
+    </h1>
+
+    <p class="error-msg">
+      <% if (typeof error !== 'undefined' && error.status === 404) { %>
+        The page you're looking for has vanished into the void — it may have been moved or deleted.
+      <% } else if (typeof error !== 'undefined' && error.status === 403) { %>
+        You don't have permission to view this. Try logging in with the right account.
+      <% } else if (typeof error !== 'undefined' && error.status === 401) { %>
+        You need to be logged in to access this page. Please sign in and try again.
+      <% } else { %>
+        Something unexpected happened on our end. Don't worry — it's not you, it's us.
+        Try refreshing the page or heading back home.
+      <% } %>
+    </p>
+
+    <!-- ACTIONS -->
+    <div class="action-row">
+      <a href="/" class="btn-primary">🏠 Go Home</a>
+      <a href="javascript:history.back()" class="btn-ghost">← Go Back</a>
+    </div>
+
+    <!-- DIVIDER + STACK TRACE -->
+    <% if (typeof error !== 'undefined' && error.stack) { %>
+      <div class="divider"></div>
+      <div class="stack-wrap">
+        <div class="stack-label" id="stackToggle" onclick="toggleStack()">
+          <span class="chevron">▶</span>
+          Stack Trace — Development Only
+        </div>
+        <pre class="stack-body" id="stackBody"><%= error.stack %></pre>
+      </div>
+    <% } else { %>
+      <div class="divider"></div>
+      <div class="no-stack">
+        <span class="no-stack-icon">🔒</span>
+        No stack trace available. Check your server logs for more details.
+      </div>
+    <% } %>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="error-footer">
+    <a href="/">Pinspire</a> &nbsp;·&nbsp;
+    <a href="/login">Log in</a> &nbsp;·&nbsp;
+    <a href="/signup">Sign up</a>
+  </div>
+
+</div>
+
+<script>
+  function toggleStack() {
+    const body   = document.getElementById('stackBody');
+    const toggle = document.getElementById('stackToggle');
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    toggle.classList.toggle('open', !isOpen);
+  }
+</script>
+
 </body>
 </html>
