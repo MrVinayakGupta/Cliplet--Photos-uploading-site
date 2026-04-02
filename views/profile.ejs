@@ -440,7 +440,7 @@
       <% user.posts.forEach((post, index) => { %>
         <div class="post-card" style="--i:<%= index %>">
           <div class="post-inner">
-            <img class="post-img" src="/images/uploads/<%= post.image %>" alt="Post by <%= user.fullName %>"/>
+            <img class="post-img" src="<%= post.image %>" alt="Post by <%= user.fullName %>"/>
             <div class="post-gloss"></div>
             <div class="post-overlay">
               <div class="post-caption"><%= post.caption %></div>
