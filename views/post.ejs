@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= post.postText || 'Post Details' %> | Pinspire</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Cabinet+Grotesk:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pink: #FF3CAC; --violet: #784BA0; --blue: #2B86C5;
+            --grad1: linear-gradient(135deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%);
+            --bg: #070710;
+            --glass: rgba(255, 255, 255, 0.06);
+            --glass-b: rgba(255, 255, 255, 0.12);
+            --text: #f0f0ff;
+            --muted: rgba(240, 240, 255, 0.45);
+            --danger: #ff4d4d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Cabinet Grotesk', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* --- BACKGROUND SCENE --- */
+        .bg-scene {
+            position: fixed; /* Fixed so it covers everything during scroll */
+            inset: 0;
+            z-index: -1; /* Behind everything */
+            pointer-events: none;
+            background-color: #05050a;
+        }
+
+        .bg-grid {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(255, 60, 172, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 60, 172, 0.05) 1px, transparent 1px),
+                linear-gradient(rgba(255, 255, 255, 0.02) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 2px, transparent 2px);
+            background-size: 30px 30px, 30px 30px, 150px 150px, 150px 150px;
+            animation: gridDrift 40s linear infinite;
+        }
+
+        @keyframes gridDrift {
+            from { background-position: 0 0; }
+            to { background-position: 150px 150px; }
+        }
+
+        .orb {
+            position: absolute; border-radius: 50%; filter: blur(120px);
+            opacity: 0.12; mix-blend-mode: screen;
+        }
+        .o1 { width: 600px; height: 600px; background: var(--pink); top: -10%; left: -5%; }
+        .o2 { width: 500px; height: 500px; background: var(--blue); bottom: 5%; right: -5%; }
+
+        /* --- NAVIGATION BAR --- */
+        nav {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            padding: 15px 40px;
+            background: rgba(7, 7, 16, 0.7);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-b);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        .nav-left { display: flex; align-items: center; gap: 20px; flex: 1; }
+        .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; text-decoration: none; color: #fff; }
+        .logo{display:flex;align-items:center;gap:11px;font-family:'Syne',sans-serif;font-size:21px;font-weight:800;}
+        .logo-mark{width:38px;height:38px;border-radius:12px;background:var(--grad1);display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 0 24px rgba(255,60,172,.55);animation:logoPulse 3s ease infinite;}
+        @keyframes logoPulse{0%,100%{box-shadow:0 0 24px rgba(255,60,172,.55);}50%{box-shadow:0 0 44px rgba(255,60,172,.85),0 0 80px rgba(255,60,172,.2);}}
+        .logo-txt{background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+        .search-bar { 
+            width: 40%; padding: 10px 20px; 
+            background: var(--glass); border: 1px solid var(--glass-b); 
+            border-radius: 50px; color: #fff; outline: none;
+        }
+        .search-wrap{flex:1;max-width:520px;position:relative;}
+        .search-input{width:100%;padding:12px 18px 12px 46px;background:rgba(255,255,255,.065);border:1px solid var(--glass-b);border-radius:50px;color:var(--text);font-family:'Cabinet Grotesk',sans-serif;font-size:14px;outline:none;transition:all .35s;backdrop-filter:blur(10px);}
+        .search-input::placeholder{color:var(--muted);}
+        .search-input:focus{border-color:rgba(255,60,172,.55);background:rgba(255,255,255,.1);box-shadow:0 0 0 3px rgba(255,60,172,.1),0 0 32px rgba(255,60,172,.08);}
+        .profile-btn { 
+            width: 42px; height: 42px; border-radius: 50%; 
+            background: var(--grad1); border: 2px solid var(--glass-b);
+            cursor: pointer; overflow: hidden; transition: 0.3s;
+            display: flex; justify-content: center; align-items: center; font-weight: bold;
+        }
+
+        /* --- MAIN POST SECTION --- */
+        .post-container {
+            margin-top: 100px;
+            padding: 20px 5%;
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 40px;
+            min-height: 80vh;
+        }
+
+        .post-visual {
+            perspective: 1000px;
+            display: flex; align-items: flex-start; justify-content: center;
+        }
+        .main-img-card {
+            width: 100%; border-radius: 30px; overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s ease-out;
+            border: 1px solid var(--glass-b);
+        }
+        .main-img-card img { width: 100%; display: block; }
+
+        .post-details {
+            display: flex; flex-direction: column; gap: 25px;
+            position: sticky; top: 120px; height: fit-content;
+        }
+        
+        .action-bar { display: flex; gap: 12px; flex-wrap: wrap; }
+        .btn-action {
+            padding: 12px 20px; border-radius: 50px; border: 1px solid var(--glass-b);
+            background: var(--glass); color: #fff; cursor: pointer;
+            font-weight: 600; transition: 0.3s; display: flex; align-items: center; gap: 8px;
+            font-size: 14px;
+        }
+        .btn-action:hover { background: rgba(255,255,255,0.15); transform: translateY(-3px); }
+        .btn-save { background: var(--grad1); border: none; }
+        
+        /* Delete Button Style */
+        .btn-delete {
+            background: rgba(255, 77, 77, 0.1);
+            border-color: rgba(255, 77, 77, 0.3);
+            color: var(--danger);
+        }
+        .btn-delete:hover {
+            background: var(--danger);
+            color: white;
+            box-shadow: 0 0 20px rgba(255, 77, 77, 0.4);
+        }
+
+        .user-info {
+            display: flex; align-items: center; gap: 15px;
+            padding: 20px; background: var(--glass); border-radius: 20px;
+        }
+        .user-ava { width: 50px; height: 50px; border-radius: 50%; background: var(--grad1); display: flex; align-items: center; justify-content: center; font-weight: bold; }
+
+        /* --- RELATED POSTS --- */
+        .related-section { 
+            padding: 80px 5%; 
+            position: relative;
+        }
+        .related-title { font-family: 'Syne', sans-serif; font-size: 28px; margin-bottom: 30px; position: relative; z-index: 1; }
+        .masonry { columns: 4; column-gap: 20px; position: relative; z-index: 1; }
+        .rel-pin { break-inside: avoid; margin-bottom: 20px; border-radius: 20px; overflow: hidden; transition: 0.3s; border: 1px solid var(--glass-b); }
+        .rel-pin img { width: 100%; display: block; }
+        .rel-pin:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+
+        @media (max-width: 900px) {
+            .post-container { grid-template-columns: 1fr; }
+            .masonry { columns: 2; }
+        }
+
+
+        
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-scene">
+        <div class="bg-grid"></div>
+        <div class="orb o1"></div>
+        <div class="orb o2"></div>
+    </div>
+
+    <nav>
+        <div class="nav-left">
+            <div class="logo">
+                <a href="/" class="logo">
+                    <div class="logo-mark">✦</div>
+                    <span class="logo-txt">Pinspire</span>
+                </a>
+            </div>
+            <div class="search-wrap">
+                
+                <input class="search-input" id="searchInput" type="text" placeholder="🔍Search for ideas, aesthetics, moods…"/>
+            </div>
+            <!-- <input type="text" class="search-bar" placeholder="Search for ideas..."> -->
+        </div>
+        <a href="/profile" style="text-decoration: none;">
+            <div class="profile-btn">
+                <%= post.user ? post.user.username[0].toUpperCase() : 'U' %>
+            </div>
+        </a>
+    </nav>
+
+    <div class="post-container">
+        <div class="post-visual">
+            <div class="main-img-card" id="tiltCard">
+                <% if (post.image) { %>
+                    <img src="<%= post.image %>" alt="Post Image">
+                <% } else { %>
+                    <div style="padding: 100px; text-align: center;">No Image Found</div>
+                <% } %>
+            </div>
+        </div>
+
+        <div class="post-details">
+            <div class="action-bar">
+                <button class="btn-action">❤️ Like</button>
+                <button class="btn-action">📌 Pin</button>
+                <button class="btn-action btn-save">Save</button>
+                
+                <form action="/delete/<%= post._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete this pin permanently?');">
+                    <button type="submit" class="btn-action btn-delete">
+                        🗑️ Delete
+                    </button>
+                </form>
+
+                <button class="btn-action">⋯</button>
+            </div>
+
+            <h1 style="font-size: 32px; font-family: 'Syne';"><%= post.postText || 'Untitled Inspiration' %></h1>
+            <p style="color: var(--muted); line-height: 1.6;">Explore this curated piece of inspiration. Designed to capture attention and spark creativity in every pixel.</p>
+
+            <div class="user-info">
+                <div class="user-ava">
+                    <%= post.user ? post.user.username[0].toUpperCase() : '?' %>
+                </div>
+                <div>
+                    <div style="font-weight: 700;">Post by <%= post.user ? post.user.username : 'Anonymous' %></div>
+                    <div style="font-size: 13px; color: var(--muted);">1.2k Followers</div>
+                </div>
+                <button class="btn-action" style="margin-left: auto; font-size: 13px;">Follow</button>
+            </div>
+        </div>
+    </div>
+
+    <section class="related-section">
+        <h2 class="related-title">More like this</h2>
+        <div class="masonry">
+            <% for(let i=0; i<8; i++) { %>
+                <div class="rel-pin">
+                    <img src="https://picsum.photos/400/<%= 300 + (i * 20) %>" alt="Related Inspiration">
+                </div>
+            <% } %>
+        </div>
+    </section>
+
+    <script>
+        // 3D TILT EFFECT
+        const card = document.getElementById('tiltCard');
+        document.addEventListener('mousemove', (e) => {
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 40;
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 40;
+            card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+        });
+
+        document.addEventListener('mouseleave', () => {
+            card.style.transform = `rotateY(0deg) rotateX(0deg)`;
+            card.style.transition = "all 0.5s ease";
+        });
+
+        document.addEventListener('mouseenter', () => {
+            card.style.transition = "none";
+        });
+        /* ══════════════════════════════════
+   SEARCH — filter visible pins
+══════════════════════════════════ */
+document.getElementById('searchInput').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('.pin, .flip-wrap').forEach(card => {
+    const t = card.querySelector('.pin-title, .flip-back-title, .pin-img');
+    const text = t ? (t.textContent || t.alt || '').toLowerCase() : '';
+    const match = !q || text.includes(q);
+    card.style.opacity    = match ? '' : '0.12';
+    card.style.transform  = match ? '' : 'scale(.93)';
+    card.style.transition = 'opacity .3s,transform .3s';
+  });
+});
+
+    </script>
+</body>
+</html>
