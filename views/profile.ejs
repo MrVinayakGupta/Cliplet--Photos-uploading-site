@@ -27,7 +27,9 @@
       min-height:100vh;
       overflow-x:hidden;
     }
-
+    a{
+      text-decoration:none;color:inherit; font-size: inherit;
+    }
     /* ── BG ── */
     .bg-scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
     .bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,60,172,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,60,172,.04) 1px,transparent 1px);background-size:60px 60px;animation:gridDrift 30s linear infinite;}
@@ -369,6 +371,7 @@
           <span class="fullname"><%= user.fullName %></span>
         </div>
         <div class="handle">@<%= user.username %></div>
+        &#8203; <!-- zero-width space for gap -->
         <div class="job-title">UI / UX Designer</div>
         <div class="bio">Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam atque, ipsam a amet laboriosam eligendi.</div>
 
@@ -401,13 +404,15 @@
         <!-- CTA BUTTONS -->
         <div class="action-row">
           <button class="btn-ghost">💬 Message</button>
-          <button class="btn-primary">＋ Connect</button>
+          <button class="btn-primary">＋ Follow</button>
+          <a href="/upload" class="upload-submit">Publish ✦</a>
+          <button class="upload-submit" href="/upload">Publish ✦</button>
         </div>
       </div>
     </div>
 
     <!-- UPLOAD FORM -->
-    <div class="upload-form">
+    <!-- <div class="upload-form">
       <span class="upload-label">✦ Upload a new Pin</span>
       <form action="/upload" method="POST" enctype="multipart/form-data">
         <div class="upload-fields">
@@ -419,7 +424,7 @@
           <button class="upload-submit" type="submit">Publish ✦</button>
         </div>
       </form>
-    </div>
+    </div> -->
 
   </div><!-- /profile-card -->
 
@@ -434,11 +439,12 @@
     <div class="empty-state">
       <span class="empty-icon">📌</span>
       <p>No pins yet — upload your first one above!</p>
-    </div>
+    </div>x 
   <% } else { %>
     <div class="posts-grid" id="postsGrid">
       <% user.posts.forEach((post, index) => { %>
         <div class="post-card" style="--i:<%= index %>">
+          <a href="<%= post._id %>">
           <div class="post-inner">
             <img class="post-img" src="<%= post.image %>" alt="Post by <%= user.fullName %>"/>
             <div class="post-gloss"></div>
@@ -447,6 +453,7 @@
             </div>
             <button class="post-save">Save</button>
           </div>
+          </a>
         </div>
       <% }) %>
     </div>
