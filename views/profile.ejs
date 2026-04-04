@@ -77,27 +77,47 @@
       flex-wrap:wrap;
     }
 
-    /* ── AVATAR ── */
-    .avatar-wrap{
-      position:relative;flex-shrink:0;
-      animation:avatarIn .9s .15s cubic-bezier(.34,1.56,.64,1) both;
-    }
-    @keyframes avatarIn{from{opacity:0;transform:scale(.6) rotate(-8deg);}to{opacity:1;transform:scale(1) rotate(0);}}
+    /* ── AVATAR SECTION ── */
+    .avatar-section{display:flex;flex-direction:column;align-items:center;text-align:center;}
+    .avatar-label{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:20px;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+
+    .avatar-ring-wrap{position:relative;display:inline-block;margin-bottom:20px;cursor:pointer;}
     .avatar-ring{
-      width:110px;height:110px;border-radius:50%;
-      padding:3px;
+      width:120px;height:120px;border-radius:50%;padding:3px;
       background:var(--grad1);
       box-shadow:0 0 32px rgba(255,60,172,.5),0 0 80px rgba(255,60,172,.15);
-      animation:ringPulse 3s ease infinite;
+      animation:ringPulse 3s ease infinite;transition:all .4s;
     }
     @keyframes ringPulse{0%,100%{box-shadow:0 0 32px rgba(255,60,172,.5);}50%{box-shadow:0 0 52px rgba(255,60,172,.85),0 0 100px rgba(255,60,172,.2);}}
-    .avatar-ring img{
-      width:100%;height:100%;
-      border-radius:50%;
-      object-fit:cover;
-      border:3px solid var(--bg);
-      display:block;
+    .avatar-ring:hover{transform:scale(1.04);}
+    .avatar-ring img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:3px solid var(--bg);display:block;}
+    .avatar-ring .default-ava{width:100%;height:100%;border-radius:50%;background:var(--grad1);border:3px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:800;color:#fff;}
+
+    .avatar-edit-btn{
+      position:absolute;bottom:4px;right:4px;
+      width:36px;height:36px;border-radius:50%;
+      background:var(--grad1);border:2px solid var(--bg);
+      display:flex;align-items:center;justify-content:center;
+      font-size:14px;color:#fff;cursor:pointer;
+      box-shadow:0 4px 16px rgba(255,60,172,.5);
+      transition:all .3s;
     }
+    .avatar-edit-btn:hover{transform:scale(1.12);box-shadow:0 6px 24px rgba(255,60,172,.7);}
+
+    /* dp upload input hidden */
+    #dpInput{display:none;}
+
+    .avatar-hint{font-size:11.5px;color:var(--muted);line-height:1.55;max-width:220px;margin-bottom:20px;}
+
+    .avatar-upload-btn{
+      width:100%;padding:11px;border-radius:50px;
+      background:var(--glass);border:1px solid var(--glass-b);
+      color:var(--text);font-size:13px;font-weight:600;
+      cursor:pointer;font-family:'Cabinet Grotesk',sans-serif;
+      transition:all .3s;display:flex;align-items:center;justify-content:center;gap:8px;
+    }
+    .avatar-upload-btn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,60,172,.4);}
+
     .pro-badge{
       position:absolute;bottom:4px;right:4px;
       background:var(--grad1);
@@ -359,10 +379,18 @@
 
       <!-- AVATAR -->
       <div class="avatar-wrap">
-        <div class="avatar-ring">
-          <img src="https://i.postimg.cc/bryMmCQB/profile-image.jpg" alt="Profile Image"/>
-        </div>
-        <span class="pro-badge">PRO</span>
+        <div class="avatar-ring" id="avatarRing">
+            <% if(user.dp && user.dp !== '') { %>
+              <img src="<%= user.dp %>" alt="<%= user.fullName %>" id="avatarPreview"/>
+              
+            <% } else { %>
+              <div class="default-ava" id="avatarInitial">
+                <%= user.fullName[0].toUpperCase() %>
+              </div>
+            <% } %>
+            <span class="pro-badge">PRO</span>
+          </div>
+        
       </div>
 
       <!-- INFO -->
@@ -372,8 +400,8 @@
         </div>
         <div class="handle">@<%= user.username %></div>
         &#8203; <!-- zero-width space for gap -->
-        <div class="job-title">UI / UX Designer</div>
-        <div class="bio">Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam atque, ipsam a amet laboriosam eligendi.</div>
+        <div class="job-title"><%= user.title %></div>
+        <div class="bio"><%= user.bio %></div>
 
         <!-- STATS -->
         <div class="stats-row">
@@ -405,8 +433,8 @@
         <div class="action-row">
           <button class="btn-ghost">💬 Message</button>
           <button class="btn-primary">＋ Follow</button>
-          <a href="/upload" class="upload-submit">Publish ✦</a>
-          <button class="upload-submit" href="/upload">Publish ✦</button>
+          <a href="/upload" class="upload-submit">Create Post ✦</a>
+          <a href="/profile/edit" class="upload-submit">Edit Profile ✦</a>
         </div>
       </div>
     </div>
