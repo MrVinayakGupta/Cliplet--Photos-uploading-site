@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pinspire — Edit Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Cabinet+Grotesk:wght@300;400;500;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  <style>
+    :root {
+      --pink:#FF3CAC; --violet:#784BA0; --blue:#2B86C5;
+      --cyan:#00F5D4; --orange:#FF6B35; --lime:#A8FF3E;
+      --grad1:linear-gradient(135deg,#FF3CAC 0%,#784BA0 50%,#2B86C5 100%);
+      --grad2:linear-gradient(135deg,#00F5D4,#2B86C5);
+      --grad4:linear-gradient(135deg,#A8FF3E,#00F5D4);
+      --bg:#070710;
+      --sidebar-w:230px;
+      --glass:rgba(255,255,255,0.06);
+      --glass-b:rgba(255,255,255,0.12);
+      --text:#f0f0ff;
+      --muted:rgba(240,240,255,0.45);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Cabinet Grotesk',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+    /* ── BG ── */
+    .bg-scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    .bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,60,172,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,60,172,.04) 1px,transparent 1px);background-size:60px 60px;animation:gridDrift 30s linear infinite;}
+    @keyframes gridDrift{to{background-position:60px 60px;}}
+    .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.14;}
+    .o1{width:500px;height:500px;background:var(--pink);top:-180px;left:-120px;animation:orbA 16s ease-in-out infinite alternate;}
+    .o2{width:400px;height:400px;background:var(--blue);bottom:-120px;right:-80px;animation:orbA 20s ease-in-out infinite alternate-reverse;}
+    .o3{width:300px;height:300px;background:var(--cyan);top:40%;left:40%;animation:orbA 12s ease-in-out infinite alternate;}
+    @keyframes orbA{0%{transform:translate(0,0) scale(1);}100%{transform:translate(45px,35px) scale(1.12);}}
+
+    /* ── SIDEBAR ── */
+    .sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar-w);background:rgba(7,7,16,.78);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-right:1px solid var(--glass-b);z-index:200;display:flex;flex-direction:column;padding:24px 0;transition:transform .4s cubic-bezier(.4,0,.2,1);}
+    .logo{display:flex;align-items:center;gap:11px;padding:0 22px 24px;border-bottom:1px solid var(--glass-b);font-family:'Syne',sans-serif;font-size:21px;font-weight:800;text-decoration:none;}
+    .logo-mark{width:38px;height:38px;border-radius:12px;background:var(--grad1);display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 0 24px rgba(255,60,172,.55);animation:logoPulse 3s ease infinite;flex-shrink:0;}
+    @keyframes logoPulse{0%,100%{box-shadow:0 0 24px rgba(255,60,172,.55);}50%{box-shadow:0 0 44px rgba(255,60,172,.85),0 0 80px rgba(255,60,172,.2);}}
+    .logo-txt{background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .s-label{padding:18px 22px 6px;font-size:9px;font-weight:700;letter-spacing:2.5px;color:var(--muted);text-transform:uppercase;}
+    .nav-item{display:flex;align-items:center;gap:11px;padding:10px 22px;color:var(--muted);cursor:pointer;border-radius:0 50px 50px 0;margin-right:14px;font-size:13.5px;font-weight:500;transition:all .3s;position:relative;text-decoration:none;}
+    .nav-item:hover,.nav-item.active{color:var(--text);background:var(--glass);}
+    .nav-item.active::before{content:'';position:absolute;left:0;top:20%;height:60%;width:3px;background:var(--grad1);border-radius:0 4px 4px 0;}
+    .nav-ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .3s;flex-shrink:0;}
+    .nav-item.active .nav-ic,.nav-item:hover .nav-ic{background:var(--glass);box-shadow:0 0 14px rgba(255,60,172,.3);}
+    .s-footer{margin-top:auto;padding:18px 22px;border-top:1px solid var(--glass-b);}
+    .user-row{display:flex;align-items:center;gap:10px;}
+    .u-ava{width:34px;height:34px;border-radius:50%;background:var(--grad1);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;box-shadow:0 0 16px rgba(255,60,172,.4);flex-shrink:0;overflow:hidden;}
+    .u-ava img{width:100%;height:100%;object-fit:cover;}
+    .u-name{font-size:13px;font-weight:600;}
+    .u-handle{font-size:11px;color:var(--muted);}
+
+    /* ── MAIN ── */
+    .main{margin-left:var(--sidebar-w);position:relative;z-index:1;min-height:100vh;padding:40px 40px 80px;}
+
+    /* ── TOPBAR ── */
+    .topbar{display:flex;align-items:center;gap:14px;margin-bottom:36px;}
+    .mob-menu{display:none;width:38px;height:38px;border-radius:10px;background:var(--glass);border:1px solid var(--glass-b);color:var(--text);cursor:pointer;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .back-btn{display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:50px;background:var(--glass);border:1px solid var(--glass-b);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;transition:all .3s;}
+    .back-btn:hover{color:var(--text);border-color:rgba(255,255,255,.25);}
+    .page-heading{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;}
+    .page-heading span{background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+
+    /* ── TOAST ── */
+    .toast{position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-90px);z-index:9999;display:flex;align-items:center;gap:12px;padding:14px 22px;border-radius:50px;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,60,172,.4);background:rgba(20,10,30,.88);box-shadow:0 8px 40px rgba(255,60,172,.3);font-size:13.5px;font-weight:600;color:var(--text);white-space:nowrap;transition:transform .5s cubic-bezier(.34,1.56,.64,1),opacity .4s;opacity:0;pointer-events:none;}
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto;}
+    .toast.hide{transform:translateX(-50%) translateY(-90px);opacity:0;}
+    .toast.t-success{border-color:rgba(0,245,212,.5);box-shadow:0 8px 40px rgba(0,245,212,.25);}
+    .toast.t-error  {border-color:rgba(255,60,172,.5);box-shadow:0 8px 40px rgba(255,60,172,.35);}
+    .toast.t-warn   {border-color:rgba(255,107,53,.5);box-shadow:0 8px 40px rgba(255,107,53,.3);}
+
+    /* ── GRID LAYOUT ── */
+    .settings-grid{display:grid;grid-template-columns:320px 1fr;gap:24px;align-items:start;}
+    @media(max-width:1000px){.settings-grid{grid-template-columns:1fr;}}
+
+    /* ── CARD BASE ── */
+    .card{background:rgba(255,255,255,.05);border:1px solid var(--glass-b);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:24px;padding:32px;position:relative;overflow:hidden;animation:cardIn .7s cubic-bezier(.22,1,.36,1) both;}
+    @keyframes cardIn{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--grad1);}
+    .card:nth-child(2){animation-delay:.1s;}
+    .card-glow{position:absolute;border-radius:50%;filter:blur(60px);opacity:.14;pointer-events:none;}
+    .cg1{width:200px;height:200px;background:var(--pink);top:-60px;right:-40px;}
+    .cg2{width:160px;height:160px;background:var(--cyan);bottom:-40px;left:-30px;}
+
+    /* ── AVATAR SECTION ── */
+    .avatar-section{display:flex;flex-direction:column;align-items:center;text-align:center;}
+    .avatar-label{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:20px;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+
+    .avatar-ring-wrap{position:relative;display:inline-block;margin-bottom:20px;cursor:pointer;}
+    .avatar-ring{
+      width:120px;height:120px;border-radius:50%;padding:3px;
+      background:var(--grad1);
+      box-shadow:0 0 32px rgba(255,60,172,.5),0 0 80px rgba(255,60,172,.15);
+      animation:ringPulse 3s ease infinite;transition:all .4s;
+    }
+    @keyframes ringPulse{0%,100%{box-shadow:0 0 32px rgba(255,60,172,.5);}50%{box-shadow:0 0 52px rgba(255,60,172,.85),0 0 100px rgba(255,60,172,.2);}}
+    .avatar-ring:hover{transform:scale(1.04);}
+    .avatar-ring img{width:100%;height:100%;border-radius:50%;object-fit:cover;border:3px solid var(--bg);display:block;}
+    .avatar-ring .default-ava{width:100%;height:100%;border-radius:50%;background:var(--grad1);border:3px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:42px;font-weight:800;color:#fff;}
+
+    .avatar-edit-btn{
+      position:absolute;bottom:4px;right:4px;
+      width:36px;height:36px;border-radius:50%;
+      background:var(--grad1);border:2px solid var(--bg);
+      display:flex;align-items:center;justify-content:center;
+      font-size:14px;color:#fff;cursor:pointer;
+      box-shadow:0 4px 16px rgba(255,60,172,.5);
+      transition:all .3s;
+    }
+    .avatar-edit-btn:hover{transform:scale(1.12);box-shadow:0 6px 24px rgba(255,60,172,.7);}
+
+    /* dp upload input hidden */
+    #dpInput{display:none;}
+
+    .avatar-hint{font-size:11.5px;color:var(--muted);line-height:1.55;max-width:220px;margin-bottom:20px;}
+
+    .avatar-upload-btn{
+      width:100%;padding:11px;border-radius:50px;
+      background:var(--glass);border:1px solid var(--glass-b);
+      color:var(--text);font-size:13px;font-weight:600;
+      cursor:pointer;font-family:'Cabinet Grotesk',sans-serif;
+      transition:all .3s;display:flex;align-items:center;justify-content:center;gap:8px;
+    }
+    .avatar-upload-btn:hover{background:rgba(255,255,255,.12);border-color:rgba(255,60,172,.4);}
+
+    /* readonly info chips */
+    .readonly-section{margin-top:24px;padding-top:20px;border-top:1px solid var(--glass-b);width:100%;}
+    .readonly-label{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;display:block;}
+    .info-chip{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(0,0,0,.25);border:1px solid var(--glass-b);border-radius:12px;margin-bottom:8px;}
+    .info-chip-icon{font-size:14px;color:var(--muted);flex-shrink:0;}
+    .info-chip-val{font-size:13px;font-weight:500;color:var(--muted);}
+    .info-chip-lock{margin-left:auto;font-size:11px;color:rgba(255,255,255,.2);}
+
+    /* ── RIGHT FORM CARD ── */
+    .form-card-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:6px;}
+    .form-card-title span{background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .form-card-sub{font-size:13px;color:var(--muted);margin-bottom:28px;}
+
+    /* ── FORM SECTIONS ── */
+    .form-section{margin-bottom:30px;}
+    .form-section-title{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
+    .form-section-title::after{content:'';flex:1;height:1px;background:var(--glass-b);}
+
+    /* ── FORM GROUP ── */
+    .form-group{position:relative;margin-bottom:16px;}
+    .form-label{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:7px;display:block;letter-spacing:.5px;}
+    .form-icon{position:absolute;left:16px;bottom:14px;color:var(--muted);font-size:14px;pointer-events:none;}
+    .form-input{
+      width:100%;padding:13px 16px 13px 44px;
+      background:rgba(255,255,255,.07);
+      border:1px solid var(--glass-b);
+      border-radius:14px;color:var(--text);
+      font-family:'Cabinet Grotesk',sans-serif;font-size:14px;
+      outline:none;transition:all .35s;
+    }
+    .form-input::placeholder{color:var(--muted);}
+    .form-input:focus{border-color:rgba(255,60,172,.55);background:rgba(255,255,255,.1);box-shadow:0 0 0 3px rgba(255,60,172,.1);}
+    .form-input.valid{border-color:rgba(0,245,212,.45);}
+    .form-input.error{border-color:rgba(255,60,172,.7)!important;background:rgba(255,60,172,.07)!important;box-shadow:0 0 0 3px rgba(255,60,172,.12)!important;}
+
+    /* eye toggle */
+    .eye-btn{position:absolute;right:14px;bottom:14px;background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;transition:color .3s;padding:0;}
+    .eye-btn:hover{color:var(--text);}
+
+    /* field hint */
+    .field-hint{font-size:11px;font-weight:600;margin-top:6px;padding-left:14px;display:none;color:#FF3CAC;}
+    .field-hint.visible{display:block;}
+
+    /* ── PASSWORD STRENGTH ── */
+    .strength-row{display:none;margin-top:8px;}
+    .strength-row.visible{display:block;}
+    .strength-segs{display:flex;gap:4px;margin-bottom:5px;}
+    .strength-seg{flex:1;height:3px;border-radius:4px;background:rgba(255,255,255,.1);transition:background .4s;}
+    .strength-lbl{font-size:10.5px;font-weight:700;color:var(--muted);}
+
+    /* ── SHAKE ── */
+    @keyframes shake{0%,100%{transform:translateX(0);}15%{transform:translateX(-7px);}30%{transform:translateX(7px);}45%{transform:translateX(-5px);}60%{transform:translateX(5px);}75%{transform:translateX(-3px);}90%{transform:translateX(3px);}}
+    .shake{animation:shake .45s cubic-bezier(.36,.07,.19,.97) both;}
+
+    /* ── SAVE BUTTON ── */
+    .save-btn{
+      width:100%;padding:14px;border-radius:50px;
+      background:var(--grad1);color:#fff;
+      font-size:14px;font-weight:700;cursor:pointer;border:none;
+      font-family:'Cabinet Grotesk',sans-serif;
+      box-shadow:0 4px 22px rgba(255,60,172,.35);transition:all .3s;
+      display:flex;align-items:center;justify-content:center;gap:10px;
+      margin-top:8px;
+    }
+    .save-btn:hover{transform:translateY(-2px);box-shadow:0 8px 34px rgba(255,60,172,.55);}
+    .save-btn:active{transform:translateY(0);}
+    .save-btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;}
+    .save-btn .btn-spinner{width:18px;height:18px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+    .save-btn.loading .btn-text{display:none;}
+    .save-btn.loading .btn-spinner{display:block;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+
+    /* danger zone */
+    .danger-zone{margin-top:28px;padding:20px;background:rgba(255,60,172,.05);border:1px solid rgba(255,60,172,.2);border-radius:16px;}
+    .danger-title{font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,60,172,.7);margin-bottom:10px;}
+    .danger-desc{font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.55;}
+    .danger-btn{width:100%;padding:11px;border-radius:50px;background:rgba(255,60,172,.1);border:1px solid rgba(255,60,172,.3);color:#FF3CAC;font-size:13px;font-weight:700;cursor:pointer;font-family:'Cabinet Grotesk',sans-serif;transition:all .3s;}
+    .danger-btn:hover{background:rgba(255,60,172,.2);border-color:rgba(255,60,172,.5);}
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar{width:5px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px;}
+    ::-webkit-scrollbar-thumb:hover{background:rgba(255,60,172,.4);}
+
+    @media(max-width:780px){
+      .sidebar{transform:translateX(-100%);}
+      .sidebar.open{transform:translateX(0);}
+      .main{margin-left:0;padding:20px 16px 60px;}
+      .mob-menu{display:flex;}
+      .settings-grid{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+
+<!-- BG -->
+<div class="bg-scene">
+  <div class="bg-grid"></div>
+  <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span id="toastIcon">✅</span>
+  <span id="toastMsg">Profile updated!</span>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <a href="/" class="logo">
+    <div class="logo-mark">✦</div>
+    <span class="logo-txt">Pinspire</span>
+  </a>
+  <div class="s-label">Navigate</div>
+  <a href="/" class="nav-item"><div class="nav-ic">🏠</div>Home</a>
+  <a href="/profile" class="nav-item"><div class="nav-ic">👤</div>Profile</a>
+  <a href="/explore" class="nav-item"><div class="nav-ic">🔍</div>Explore</a>
+  <a href="/saved" class="nav-item"><div class="nav-ic">📌</div>Saved</div></a>
+  <a href="/settings" class="nav-item active"><div class="nav-ic">⚙️</div>Settings</a>
+  <div class="s-footer">
+    <div class="user-row">
+      <div class="u-ava" id="sidebarAva">
+        <% if(user.dp && user.dp !== '') { %>
+          <img src="<%= user.dp %>" alt="<%= user.fullName %>"/>
+        <% } else { %>
+          <%= user.fullName[0].toUpperCase() %>
+        <% } %>
+      </div>
+      <div>
+        <div class="u-name"><%= user.fullName %></div>
+        <div class="u-handle">@<%= user.username %></div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <button class="mob-menu" id="menuBtn">☰</button>
+    <a href="/profile" class="back-btn">← Back to Profile</a>
+    <h1 class="page-heading">Edit <span>Profile</span></h1>
+  </div>
+
+  <div class="settings-grid">
+
+    <!-- ── LEFT: AVATAR + READONLY INFO ── -->
+    <div class="card">
+      <div class="card-glow cg1"></div>
+      <div class="card-glow cg2"></div>
+
+      <div class="avatar-section">
+        <span class="avatar-label">✦ Profile Photo</span>
+
+        <!-- Avatar preview -->
+        <div class="avatar-ring-wrap" onclick="document.getElementById('dpInput').click()">
+          <div class="avatar-ring" id="avatarRing">
+            <% if(user.dp && user.dp !== '') { %>
+              <img src="<%= user.dp %>" alt="<%= user.fullName %>" id="avatarPreview"/>
+            <% } else { %>
+              <div class="default-ava" id="avatarInitial">
+                <%= user.fullName[0].toUpperCase() %>
+              </div>
+            <% } %>
+          </div>
+          <div class="avatar-edit-btn">
+            <i class="fas fa-camera"></i>
+          </div>
+        </div>
+
+        <p class="avatar-hint">Click your photo to upload a new one. JPG, PNG or GIF · Max 5MB</p>
+
+        <button class="avatar-upload-btn" type="button" onclick="document.getElementById('dpInput').click()">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <span id="uploadBtnLabel">Choose Photo</span>
+        </button>
+
+        <!-- Readonly info block -->
+        <div class="readonly-section">
+          <span class="readonly-label">🔒 Cannot be changed</span>
+
+          <div class="info-chip">
+            <i class="fas fa-at info-chip-icon"></i>
+            <span class="info-chip-val">@<%= user.username %></span>
+            <i class="fas fa-lock info-chip-lock"></i>
+          </div>
+
+          <div class="info-chip">
+            <i class="fas fa-envelope info-chip-icon"></i>
+            <span class="info-chip-val"><%= user.email %></span>
+            <i class="fas fa-lock info-chip-lock"></i>
+          </div>
+
+          <p style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.55;">
+            Username and email cannot be changed to protect your account identity.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RIGHT: EDIT FORM ── -->
+    <div class="card" style="animation-delay:.12s">
+      <div class="card-glow" style="width:180px;height:180px;background:var(--cyan);top:-50px;right:-30px;position:absolute;border-radius:50%;filter:blur(60px);opacity:.1;pointer-events:none;"></div>
+
+      <h2 class="form-card-title">Edit <span>Your Info</span></h2>
+      <p class="form-card-sub">Update your display name, photo or password below.</p>
+
+      <form action="/settings/update" method="POST" enctype="multipart/form-data" id="settingsForm" novalidate>
+
+        <!-- Hidden dp file -->
+        <input type="file" name="dp" id="dpInput" accept="image/*" style="display:none"/>
+
+        <!-- ── PERSONAL INFO ── -->
+        <div class="form-section">
+          <div class="form-section-title">Personal Info</div>
+
+          <!-- Full Name -->
+          <div class="form-group" id="grp-fullName">
+            <label class="form-label" for="fullNameInput">Full Name</label>
+            <i class="fas fa-user form-icon"></i>
+            <input
+              class="form-input"
+              type="text"
+              name="fullName"
+              id="fullNameInput"
+              placeholder="Your full name"
+              value="<%= user.fullName %>"
+              autocomplete="name"
+            />
+            <div class="field-hint" id="fullNameHint"></div>
+          </div>
+          <!-- Profession -->
+          <div class="form-group" id="grp-title">
+            <label class="form-label" for="titleInput">Profession</label>
+            <i class="fas fa-briefcase form-icon"></i>
+            <input
+              class="form-input"
+              type="text"
+              name="title"
+              id="titleInput"
+              placeholder="Your profession"
+              value="<%= user.title %>"
+              autocomplete="off"
+            />
+            <div class="field-hint" id="titleHint"></div>
+          </div>
+          <!-- Bio -->
+          <div class="form-group" id="grp-bio">
+            <label class="form-label" for="bioInput">Bio</label>
+            <i class="fas fa-align-left form-icon"></i>
+            <textarea
+              class="form-input"
+              name="bio"
+              id="bioInput"
+              placeholder="Tell us about yourself"
+              rows="4"
+            ><%= user.bio %></textarea>
+            <div class="field-hint" id="bioHint"></div>
+          </div>
+        </div>
+
+        <!-- ── CHANGE PASSWORD ── -->
+        <div class="form-section">
+          <div class="form-section-title">Change Password</div>
+
+          <!-- Current Password -->
+          <div class="form-group" id="grp-currentPass">
+            <label class="form-label" for="currentPassInput">Current Password</label>
+            <i class="fas fa-lock form-icon"></i>
+            <input
+              class="form-input"
+              type="password"
+              name="currentPassword"
+              id="currentPassInput"
+              placeholder="Enter current password"
+              autocomplete="current-password"
+            />
+            <button type="button" class="eye-btn" onclick="toggleEye('currentPassInput','eye1')">
+              <i class="fas fa-eye" id="eye1"></i>
+            </button>
+            <div class="field-hint" id="currentPassHint"></div>
+          </div>
+
+          <!-- New Password -->
+          <div class="form-group" id="grp-newPass">
+            <label class="form-label" for="newPassInput">New Password</label>
+            <i class="fas fa-lock form-icon"></i>
+            <input
+              class="form-input"
+              type="password"
+              name="newPassword"
+              id="newPassInput"
+              placeholder="Enter new password"
+              autocomplete="new-password"
+            />
+            <button type="button" class="eye-btn" onclick="toggleEye('newPassInput','eye2')">
+              <i class="fas fa-eye" id="eye2"></i>
+            </button>
+            <!-- Strength Bar -->
+            <div class="strength-row" id="strengthRow">
+              <div class="strength-segs">
+                <div class="strength-seg" id="ss1"></div>
+                <div class="strength-seg" id="ss2"></div>
+                <div class="strength-seg" id="ss3"></div>
+                <div class="strength-seg" id="ss4"></div>
+              </div>
+              <div class="strength-lbl" id="strengthLbl"></div>
+            </div>
+            <div class="field-hint" id="newPassHint"></div>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="form-group" id="grp-confirmPass">
+            <label class="form-label" for="confirmPassInput">Confirm New Password</label>
+            <i class="fas fa-lock form-icon"></i>
+            <input
+              class="form-input"
+              type="password"
+              name="confirmPassword"
+              id="confirmPassInput"
+              placeholder="Re-enter new password"
+              autocomplete="new-password"
+            />
+            <button type="button" class="eye-btn" onclick="toggleEye('confirmPassInput','eye3')">
+              <i class="fas fa-eye" id="eye3"></i>
+            </button>
+            <div class="field-hint" id="confirmPassHint"></div>
+          </div>
+
+          <p style="font-size:11.5px;color:var(--muted);margin-bottom:4px;padding-left:4px;line-height:1.6;">
+            Leave password fields empty if you don't want to change your password.
+          </p>
+        </div>
+
+        <!-- ── SAVE ── -->
+        <button class="save-btn" type="submit" id="saveBtn">
+          <span class="btn-text">✦ Save Changes</span>
+          <div class="btn-spinner"></div>
+        </button>
+
+      </form>
+
+      <!-- ── DANGER ZONE ── -->
+      <div class="danger-zone">
+        <div class="danger-title">⚠ Danger Zone</div>
+        <p class="danger-desc">Permanently delete your account and all your pins. This action cannot be undone.</p>
+        <button class="danger-btn" onclick="confirmDelete()">Delete My Account</button>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+<script>
+/* ══════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════ */
+let toastTimer;
+function showToast(msg, type = 'success') {
+  const t   = document.getElementById('toast');
+  const ic  = document.getElementById('toastIcon');
+  const txt = document.getElementById('toastMsg');
+  const icons = { success:'✅', error:'🚫', warn:'⚠️' };
+  t.className = 'toast t-' + type;
+  ic.textContent  = icons[type];
+  txt.textContent = msg;
+  t.classList.add('show'); t.classList.remove('hide');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.classList.add('hide'); t.classList.remove('show'); }, 4000);
+}
+
+/* ══════════════════════════════════════════
+   EYE TOGGLE
+══════════════════════════════════════════ */
+function toggleEye(inputId, iconId) {
+  const input = document.getElementById(inputId);
+  const icon  = document.getElementById(iconId);
+  const show  = input.type === 'password';
+  input.type  = show ? 'text' : 'password';
+  icon.className = show ? 'fas fa-eye-slash' : 'fas fa-eye';
+}
+
+/* ══════════════════════════════════════════
+   AVATAR PREVIEW
+══════════════════════════════════════════ */
+document.getElementById('dpInput').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+
+  // size check 5MB
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('Image too large. Max size is 5MB.', 'error');
+    this.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    const ring = document.getElementById('avatarRing');
+    // replace inner content with preview img
+    ring.innerHTML = `<img src="${e.target.result}" alt="Preview" id="avatarPreview" style="width:100%;height:100%;border-radius:50%;object-fit:cover;border:3px solid var(--bg);display:block;"/>`;
+    // update sidebar avatar too
+    const sAva = document.getElementById('sidebarAva');
+    sAva.innerHTML = `<img src="${e.target.result}" alt="DP" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`;
+  };
+  reader.readAsDataURL(file);
+
+  // update label
+  document.getElementById('uploadBtnLabel').textContent = file.name.length > 22
+    ? file.name.slice(0, 20) + '…'
+    : file.name;
+  showToast('Photo selected — save to apply.', 'warn');
+});
+
+/* ══════════════════════════════════════════
+   PASSWORD STRENGTH
+══════════════════════════════════════════ */
+const segs   = ['ss1','ss2','ss3','ss4'].map(id => document.getElementById(id));
+const levels = [
+  {label:'Too weak 😬', colors:['#FF3CAC','','','']},
+  {label:'Weak 😐',     colors:['#FF6B35','#FF6B35','','']},
+  {label:'Good 👍',     colors:['#FFD23F','#FFD23F','#FFD23F','']},
+  {label:'Strong 🔥',   colors:['#A8FF3E','#A8FF3E','#A8FF3E','#00F5D4']},
+];
+function getStrength(v) {
+  let s = 0;
+  if (v.length >= 8)          s++;
+  if (/[A-Z]/.test(v))        s++;
+  if (/[0-9]/.test(v))        s++;
+  if (/[^a-zA-Z0-9]/.test(v)) s++;
+  return s;
+}
+document.getElementById('newPassInput').addEventListener('input', function() {
+  const v   = this.value;
+  const row = document.getElementById('strengthRow');
+  const lbl = document.getElementById('strengthLbl');
+  clearHint('newPassHint');
+  this.classList.remove('error');
+  if (!v) { row.classList.remove('visible'); return; }
+  row.classList.add('visible');
+  const lvl = Math.max(0, getStrength(v) - 1);
+  segs.forEach((s, i) => s.style.background = levels[lvl].colors[i] || 'rgba(255,255,255,.1)');
+  lbl.textContent  = levels[lvl].label;
+  lbl.style.color  = levels[lvl].colors[0];
+});
+
+/* ══════════════════════════════════════════
+   FIELD HINTS
+══════════════════════════════════════════ */
+function setHint(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.classList.toggle('visible', !!msg);
+}
+function clearHint(id) { setHint(id, ''); }
+function markError(inputId, hintId, msg) {
+  const input = document.getElementById(inputId);
+  input.classList.add('error','shake');
+  input.addEventListener('animationend', () => input.classList.remove('shake'), { once: true });
+  setHint(hintId, '✕ ' + msg);
+}
+function clearError(inputId, hintId) {
+  const input = document.getElementById(inputId);
+  input.classList.remove('error');
+  clearHint(hintId);
+}
+
+// live clear on type
+['fullNameInput','currentPassInput','newPassInput','confirmPassInput'].forEach(id => {
+  const hints = { fullNameInput:'fullNameHint', currentPassInput:'currentPassHint', newPassInput:'newPassHint', confirmPassInput:'confirmPassHint' };
+  document.getElementById(id).addEventListener('input', () => clearError(id, hints[id]));
+});
+
+/* ══════════════════════════════════════════
+   FORM SUBMIT VALIDATION
+══════════════════════════════════════════ */
+document.getElementById('settingsForm').addEventListener('submit', function(e) {
+  let valid = true;
+
+  const fullName    = document.getElementById('fullNameInput').value.trim();
+  const currentPass = document.getElementById('currentPassInput').value;
+  const newPass     = document.getElementById('newPassInput').value;
+  const confirmPass = document.getElementById('confirmPassInput').value;
+  const dpFile      = document.getElementById('dpInput').files[0];
+
+  // ── Full name ──
+  if (!fullName) {
+    markError('fullNameInput','fullNameHint','Full name cannot be empty.');
+    valid = false;
+  } else if (fullName.length < 2) {
+    markError('fullNameInput','fullNameHint','Name is too short.');
+    valid = false;
+  } else {
+    clearError('fullNameInput','fullNameHint');
+    document.getElementById('fullNameInput').classList.add('valid');
+  }
+
+  // ── Password fields — only validate if any is filled ──
+  const anyPass = currentPass || newPass || confirmPass;
+  if (anyPass) {
+    if (!currentPass) {
+      markError('currentPassInput','currentPassHint','Enter your current password to make changes.');
+      valid = false;
+    }
+    if (!newPass) {
+      markError('newPassInput','newPassHint','Enter a new password.');
+      valid = false;
+    } else if (newPass.length < 6) {
+      markError('newPassInput','newPassHint','Password must be at least 6 characters.');
+      valid = false;
+    }
+    if (!confirmPass) {
+      markError('confirmPassInput','confirmPassHint','Please confirm your new password.');
+      valid = false;
+    } else if (newPass && confirmPass !== newPass) {
+      markError('confirmPassInput','confirmPassHint','Passwords do not match.');
+      valid = false;
+    }
+  }
+
+  // ── Nothing changed check ──
+  const originalName = '<%= user.fullName %>';
+  const originalBio = '<%= user.bio %>';
+  const originalTitle = '<%= user.title %>';
+  const nothingChanged = fullName === originalName && bio === originalBio && title === originalTitle && !anyPass && !dpFile;
+  if (nothingChanged) {
+    e.preventDefault();
+    showToast('No changes detected.', 'warn');
+    return;
+  }
+
+  if (!valid) {
+    e.preventDefault();
+    showToast('Please fix the errors above.', 'error');
+    return;
+  }
+
+  // ── Loading state ──
+  const btn = document.getElementById('saveBtn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+});
+
+/* ══════════════════════════════════════════
+   MOBILE SIDEBAR
+══════════════════════════════════════════ */
+document.getElementById('menuBtn').addEventListener('click', () =>
+  document.getElementById('sidebar').classList.toggle('open'));
+document.addEventListener('click', e => {
+  const sb = document.getElementById('sidebar');
+  if (!sb.contains(e.target) && e.target.id !== 'menuBtn') sb.classList.remove('open');
+});
+
+/* ══════════════════════════════════════════
+   DELETE ACCOUNT CONFIRM
+══════════════════════════════════════════ */
+function confirmDelete() {
+  const confirmed = window.confirm(
+    '⚠️ Are you absolutely sure?\n\nThis will permanently delete your account and all your pins. There is no undo.'
+  );
+  if (confirmed) {
+    window.location.href = '/settings/delete-account';
+  }
+}
+
+/* ══════════════════════════════════════════
+   SERVER-SIDE SUCCESS / ERROR FLASH
+   Pass ?success=1 or ?error=wrong_password in URL
+══════════════════════════════════════════ */
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('success') === '1')     showToast('Profile updated successfully! 🎉', 'success');
+  if (params.get('error') === 'wrong_password') showToast('Current password is incorrect.', 'error');
+  if (params.get('error') === 'server')  showToast('Something went wrong. Try again.', 'error');
+})();
+</script>
+</body>
+</html>
