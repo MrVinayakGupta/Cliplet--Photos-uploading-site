@@ -41,7 +41,19 @@ const userSchema = new mongoose.Schema({
   bio: {
     type: String,
     trim: true
-  }
+  },
+  followers: [
+    {
+       type: mongoose.Schema.Types.ObjectId, 
+       ref: 'User' 
+    }
+  ],
+  following: [
+    {
+       type: mongoose.Schema.Types.ObjectId, 
+       ref: 'User' 
+    }
+  ]
 }, { timestamps: true });
 
 // ✅ Apply the plugin correctly
