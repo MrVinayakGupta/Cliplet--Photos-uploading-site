@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pinspire — <%= user.username %>'s Network</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Cabinet+Grotesk:wght@300;400;500;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  <style>
+    :root {
+      --pink:#FF3CAC; --violet:#784BA0; --blue:#2B86C5;
+      --cyan:#00F5D4; --orange:#FF6B35; --lime:#A8FF3E;
+      --grad1:linear-gradient(135deg,#FF3CAC 0%,#784BA0 50%,#2B86C5 100%);
+      --grad2:linear-gradient(135deg,#00F5D4,#2B86C5);
+      --bg:#070710;
+      --sidebar-w:230px;
+      --glass:rgba(255,255,255,0.06);
+      --glass-b:rgba(255,255,255,0.12);
+      --text:#f0f0ff;
+      --muted:rgba(240,240,255,0.45);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Cabinet Grotesk',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+    a{text-decoration:none;color:inherit;}
+
+    /* ── BG ── */
+    .bg-scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
+    .bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,60,172,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,60,172,.04) 1px,transparent 1px);background-size:60px 60px;animation:gridDrift 30s linear infinite;}
+    @keyframes gridDrift{to{background-position:60px 60px;}}
+    .orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.14;}
+    .o1{width:500px;height:500px;background:var(--pink);top:-180px;left:-120px;animation:orbA 16s ease-in-out infinite alternate;}
+    .o2{width:400px;height:400px;background:var(--blue);bottom:-120px;right:-80px;animation:orbA 20s ease-in-out infinite alternate-reverse;}
+    .o3{width:300px;height:300px;background:var(--cyan);top:40%;left:40%;animation:orbA 12s ease-in-out infinite alternate;}
+    @keyframes orbA{0%{transform:translate(0,0) scale(1);}100%{transform:translate(45px,35px) scale(1.12);}}
+
+    .sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar-w);background:rgba(7,7,16,.78);backdrop-filter:blur(28px);border-right:1px solid var(--glass-b);z-index:200;display:flex;flex-direction:column;padding:24px 0;}
+    .logo{display:flex;align-items:center;gap:11px;padding:0 22px 24px;border-bottom:1px solid var(--glass-b);font-family:'Syne',sans-serif;font-size:21px;font-weight:800;}
+    .logo-mark{width:38px;height:38px;border-radius:12px;background:var(--grad1);display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 0 24px rgba(255,60,172,.55);}
+    .logo-txt{background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .s-label{padding:18px 22px 6px;font-size:9px;font-weight:700;letter-spacing:2.5px;color:var(--muted);text-transform:uppercase;}
+    .nav-item{display:flex;align-items:center;gap:11px;padding:10px 22px;color:var(--muted);border-radius:0 50px 50px 0;margin-right:14px;font-size:13.5px;font-weight:500;transition:all .3s;}
+    .nav-item:hover,.nav-item.active{color:var(--text);background:var(--glass);}
+    .nav-ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+
+    .main{margin-left:var(--sidebar-w);position:relative;z-index:1;min-height:100vh;padding:36px 36px 80px;}
+    .page-topbar{display:flex;align-items:center;gap:14px;margin-bottom:32px;}
+    .back-btn{display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:50px;background:var(--glass);border:1px solid var(--glass-b);color:var(--muted);font-size:13px;cursor:pointer;}
+    .page-heading{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;}
+    .page-heading span{background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+
+    .profile-mini{display:flex;align-items:center;gap:20px;background:rgba(255,255,255,.05);border:1px solid var(--glass-b);backdrop-filter:blur(20px);border-radius:24px;padding:22px 28px;margin-bottom:28px;position:relative;overflow:hidden;}
+    .pm-avatar{width:64px;height:64px;border-radius:50%;padding:2.5px;background:var(--grad1);flex-shrink:0;}
+    .pm-avatar img, .pm-initial{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2.5px solid var(--bg);display:flex;align-items:center;justify-content:center;font-weight:800;}
+    .pm-initial{background:var(--grad1);color:#fff;font-size:22px;}
+    .pm-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+    .pm-stats{display:flex;gap:20px;margin-top:10px;}
+    .pm-stat-n{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;display:block;}
+    .pm-stat-l{font-size:10px;color:var(--muted);font-weight:600;}
+
+    .tabs-row{display:flex;gap:8px;margin-bottom:28px;}
+    .tab{display:flex;align-items:center;gap:8px;padding:11px 24px;border-radius:50px;background:var(--glass);border:1px solid var(--glass-b);color:var(--muted);font-size:13.5px;font-weight:600;cursor:pointer;transition:all .3s;}
+    .tab.active{background:var(--grad1);color:#fff;border-color:transparent;}
+    .tab-badge{min-width:20px;height:20px;padding:0 6px;border-radius:50px;font-size:11px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.1);}
+
+    .people-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));gap:16px;}
+    .person-card{background:rgba(255,255,255,.05);border:1px solid var(--glass-b);backdrop-filter:blur(16px);border-radius:22px;padding:24px 20px 20px;position:relative;opacity:0;transform:translateY(20px);transition:all .5s ease;}
+    .person-card.visible{opacity:1;transform:translateY(0);}
+    .person-avatar-wrap{display:flex;justify-content:center;margin-bottom:16px;position:relative;}
+    .person-avatar{width:76px;height:76px;border-radius:50%;padding:2.5px;background:var(--grad1);}
+    .person-avatar img, .person-initial{width:100%;height:100%;border-radius:50%;object-fit:cover;border:2.5px solid var(--bg);display:flex;align-items:center;justify-content:center;}
+    .person-initial{background:var(--grad1);font-size:26px;font-weight:800;color:#fff;}
+    .person-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;text-align:center;}
+    .person-handle{font-size:12px;color:var(--muted);text-align:center;margin-bottom:10px;}
+    .person-stats{display:flex;justify-content:center;gap:20px;padding:10px 0;border-top:1px solid var(--glass-b);border-bottom:1px solid var(--glass-b);margin-bottom:15px;}
+    .btn-follow{width:100%;padding:10px;border-radius:50px;background:var(--grad1);color:#fff;border:none;cursor:pointer;font-weight:700;}
+    .btn-follow.following{background:var(--glass);color:var(--pink);border:1px solid var(--pink);}
+
+    @media(max-width:780px){
+      .main{margin-left:0;}
+      .sidebar{display:none;}
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg-scene">
+  <div class="bg-grid"></div>
+  <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+</div>
+
+<% if(user) { %>
+<aside class="sidebar">
+  <a href="/" class="logo"><div class="logo-mark">✦</div><span class="logo-txt">Pinspire</span></a>
+  <div class="s-label">Navigate</div>
+  <a href="/" class="nav-item"><div class="nav-ic">🏠</div>Home</a>
+  <a href="/profile" class="nav-item active"><div class="nav-ic">👤</div>Profile</a>
+  <a href="/upload" class="nav-item"><div class="nav-ic">🎨</div>Create Pin</a>
+</aside>
+
+<main class="main">
+  <div class="page-topbar">
+    <a href="/user/<%= user.username %>" class="back-btn"><i class="fas fa-arrow-left"></i> Back</a>
+    <h1 class="page-heading"><%= user.username %>'s <span>Network</span></h1>
+  </div>
+
+  <div class="profile-mini">
+    <div class="pm-avatar">
+      <% if(user.dp) { %> <img src="<%= user.dp %>"> <% } else { %>
+        <div class="pm-initial"><%= (user.fullName || user.username)[0].toUpperCase() %></div>
+      <% } %>
+    </div>
+    <div class="pm-info">
+      <div class="pm-name"><%= user.fullName || user.username %></div>
+      <div class="pm-stats">
+        <div class="pm-stat"><span class="pm-stat-n"><%= user.followers.length %></span><div class="pm-stat-l">Followers</div></div>
+        <div class="pm-stat"><span class="pm-stat-n"><%= user.following.length %></span><div class="pm-stat-l">Following</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs-row">
+    <button class="tab active" id="tab-followers" onclick="switchTab('followers')">Followers <span class="tab-badge"><%= user.followers.length %></span></button>
+    <button class="tab" id="tab-following" onclick="switchTab('following')">Following <span class="tab-badge"><%= user.following.length %></span></button>
+  </div>
+
+  <div id="panel-followers" class="people-grid">
+    <% if(user.followers.length > 0) { %>
+      <% user.followers.forEach(follower => { %>
+        <div class="person-card">
+          <div class="person-avatar-wrap">
+            <div class="person-avatar">
+              <% if(follower.dp) { %> <img src="<%= follower.dp %>"> <% } else { %>
+                <div class="person-initial"><%= (follower.fullName || follower.username || 'U')[0].toUpperCase() %></div>
+              <% } %>
+            </div>
+          </div>
+          <div class="person-name"><%= follower.fullName || follower.username %></div>
+          <div class="person-handle">@<%= follower.username %></div>
+          <button class="btn-follow" onclick="toggleFollow(this, '<%= follower._id %>')">Follow</button>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+
+  <div id="panel-following" class="people-grid" style="display:none">
+    <% if(user.following.length > 0) { %>
+      <% user.following.forEach(followed => { %>
+        <div class="person-card">
+          <div class="person-avatar-wrap">
+            <div class="person-avatar">
+              <% if(user.dp) { %> <img src="<%= user.dp %>"> <% } else { %>
+                <div class="person-initial"><%= (user.fullName || user.username || 'U')[0].toUpperCase() %></div>
+              <% } %>
+            </div>
+          </div>
+          <div class="person-name"><%= user.fullName || user.username %></div>
+          <div class="person-handle">@<%= user.username %></div>
+          <% if(currUser.following.some(f => f._id.toString() === user._id.toString())) { %>
+          <button class="btn-follow following" onclick="toggleFollow(this, '<%= user._id %>')">Following</button>
+            <% } else { %>
+            <button class="btn-follow" onclick="toggleFollow(this, '<%= user._id %>')">Follow</button>
+          <% } %>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+</main>
+<% } %>
+
+<script>
+function switchTab(tab) {
+  document.getElementById('panel-followers').style.display = tab === 'followers' ? 'grid' : 'none';
+  document.getElementById('panel-following').style.display = tab === 'following' ? 'grid' : 'none';
+  document.getElementById('tab-followers').classList.toggle('active', tab === 'followers');
+  document.getElementById('tab-following').classList.toggle('active', tab === 'following');
+  observeCards();
+}
+
+function observeCards() {
+  const cards = document.querySelectorAll('.person-card');
+  cards.forEach((card, i) => {
+    setTimeout(() => card.classList.add('visible'), i * 50);
+  });
+}
+observeCards();
+
+function toggleFollow(btn, id) {
+  const following = btn.classList.toggle('following');
+  btn.innerText = following ? 'Following' : 'Follow';
+  fetch('/follow/' + id, { method: 'POST' });
+}
+</script>
+</body>
+</html>
