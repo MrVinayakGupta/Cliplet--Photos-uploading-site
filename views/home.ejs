@@ -318,10 +318,11 @@
   </div>
   <div class="s-label">Navigate</div>
   <div class="nav-item active" onclick="setNav(this)"><div class="nav-ic">🏠</div>Home</div>
-  <div class="nav-item" onclick="setNav(this)"><div class="nav-ic">🔍</div>Explore</div>
-  <div class="nav-item" onclick="setNav(this)"><div class="nav-ic">✨</div>Following</div>
+  <a href="/profile" class="nav-item" style="text-decoration: none;"><div class="nav-ic">👤</div>Profile</a>
+  <!-- <div class="nav-item" onclick="setNav(this)"><div class="nav-ic">🔍</div>Explore</div> -->
+  <!-- <div class="nav-item" onclick="setNav(this)"><div class="nav-ic">✨</div>Following</div> -->
+  <div class="nav-item" onclick="setNav(this)"><div class="nav-ic">🎨</div>Create Pin</div>
   <div class="nav-item" onclick="setNav(this)"><div class="nav-ic">📌</div>Saved</div>
-  <div class="nav-item" onclick="setNav(this)"><div class="nav-ic">🎨</div>Create</div>
   <div class="s-label">Categories</div>
   <div class="cat-item"><div class="cat-dot" style="background:#FF3CAC"></div>Art & Design</div>
   <div class="cat-item"><div class="cat-dot" style="background:#00F5D4"></div>Architecture</div>
@@ -333,8 +334,10 @@
   <div class="cat-item"><div class="cat-dot" style="background:#34d399"></div>Nature</div>
   <div class="s-footer">
     <div class="user-row">
+      <a href="/profile">
       <div class="u-ava">A</div>
       <div><div class="u-name">Alex Rivera</div><div class="u-handle">@alexdesigns</div></div>
+      </a>
     </div>
   </div>
 </aside>
@@ -402,7 +405,7 @@
       <% if(typeof posts !== 'undefined' && posts.length > 0) { %>
         <% posts.forEach(function(post, index) { %>
           <div class="pin" data-index="<%= index %>">
-            <a href="/<%= post._id %>">
+            <a href="/user/<%= post.user.username %>/<%= post._id %>">
             <div class="pin-inner">
               <img
                 class="pin-img"
