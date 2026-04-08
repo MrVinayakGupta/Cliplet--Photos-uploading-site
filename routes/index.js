@@ -29,17 +29,14 @@ router.get('/upload', isLoggedIn, (req, res) => {
   res.render('upload', { title: 'Upload Image' });
 });
 
-
 router.get('/', async (req, res) => {
   try {
     const posts = await postModel.find().populate('user');
-    res.render('home', { title: 'Pinterest Profile', posts });
+    res.render('home', { title: 'Pinterest Profile', posts, currUser: req.user }); // pass posts and current user to EJS
   } catch (err) {
     res.status(500).send('Error fetching posts');
   }
 });
-
-
 
 // router.get('/', async (req, res) => {
   
@@ -49,8 +46,6 @@ router.get('/', async (req, res) => {
 //   // const posts = postModel.find().populate('image').exec();
 //   // res.render('home', {  title: 'Pinterest Home', posts: posts });
 // });
-
-
 
 router.post('/settings/update', isLoggedIn, async (req, res, next) => {
   const { fullName, bio, title, currentPassword, newPassword } = req.body;
@@ -93,10 +88,6 @@ router.get('/settings/delete-account', isLoggedIn, async (req, res, next) => {
   });
 });
 
-// POST /settings/update   → handle fullName, dp, currentPassword, newPassword
-// GET  /settings/delete-account → delete user and logout
-
-
 router.get('/signup', (req, res) => {
     // We pass the 'imageIds' array to the EJS template under the name 'ids'
     res.render('signup', { ids: imageIds });
@@ -135,38 +126,35 @@ router.get("/logout", (req, res) => {
   });
 });
 
-
-// Dynamic route for viewing OTHER people's profiles
-// Notice we use /user/:profile to prevent clashes with your own /profile route
-router.get('/user/:profile', isLoggedIn, async (req, res, next) => {
-  try {
-    // 1. Get the username from the URL (e.g., 'vinayak')
-    const targetUsername = req.params.profile; 
-
-    // 2. Use findOne() instead of findById() to search by the username string
-    const user = await userModel.findOne({ username: targetUsername }).populate('posts');
-
-    // 3. If no user has that username, show a 404
-    if (!user) {
-      return res.status(404).send('User not found');
-    }
-
-    // 4. Render the profile page with their data
-    res.render('profile', { 
-        title: `${user.username}'s Profile`, 
-        user: user, 
-        post: user.posts ,
-        currUser: await userModel.findOne({ username: req.session.passport.user }) // Pass the currently logged-in user for conditional rendering
-    }); 
-
-  } catch (err) {     
-    console.error(err);
-    res.status(500).send('Error loading profile: ' + err.message);
-  }
+router.get('/profile', isLoggedIn,  async (req, res, next) => {
+  const user = await userModel.findOne({ 
+    username: req.session.passport.user
+   }).populate('posts'); // Populate the 'posts' field with the actual post documents
+   const postID = req.params.id; // lowercase for consistency
+    const post = await postModel.findById(postID).populate('user');
+    res.render('profile', { title: 'Pinterest Profile', user: user, post: post, currUser: user });
 });
 
 
+// Dynamic route for viewing OTHER people's profiles
+// Notice we use /user/:profile to prevent clashes with your own /profile route
+router.get('/user/:profile', isLoggedIn, async (req, res) => {
+    try {
+        const targetUsername = req.params.profile;
+        const user = await userModel.findOne({ username: targetUsername }).populate('posts');
+        const currUser = await userModel.findOne({ username: req.session.passport.user });
 
+        if (!user) return res.status(404).send('User not found');
+
+        res.render('profile', { 
+            title: `${user.username}'s Profile`, 
+            user, 
+            currUser 
+        });
+    } catch (err) {
+        res.status(500).send('Error loading profile');
+    }
+});
 
 
 // router.get('/:profile', isLoggedIn,  async (req, res, next) => {
@@ -189,15 +177,97 @@ router.get('/user/:profile', isLoggedIn, async (req, res, next) => {
 //   //   res.render('profile', { title: 'Pinterest Profile', user: user, post: post });
 // });
 
-router.get('/profile', isLoggedIn,  async (req, res, next) => {
-  const user = await userModel.findOne({ 
-    username: req.session.passport.user
-   }).populate('posts'); // Populate the 'posts' field with the actual post documents
-   const postID = req.params.id; // lowercase for consistency
-    const post = await postModel.findById(postID).populate('user');
-    res.render('profile', { title: 'Pinterest Profile', user: user, post: post, currUser: user });
+router.get('/follow/:id', isLoggedIn, async (req, res) => {
+    try {
+        // Use findById and populate if you want to show the names of followers
+        const user = await userModel.findById(req.params.id).populate('followers');
+
+        // CRITICAL CHECK: If user is not found, handle it!
+        if (!user) {
+            return res.status(4404).send("User not found in database");
+        }
+
+        res.render('followers', { 
+            title: 'Followers', 
+            user: user // Passing the found user to EJS
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Server Error"+ err.message);
+    }
 });
- 
+
+router.get('/followers/:username', isLoggedIn, async (req, res) => {
+    try {
+        const currentUser = await userModel.findOne({ username: req.session.passport.user });
+        // Use findOne to search by the 'username' field instead of '_id'
+        const user = await userModel.findOne({ username: req.params.username })
+                                    .populate('followers');
+
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+
+        res.render('followers', { 
+            title: 'Followers', 
+            user: user,
+            currUser: currentUser // Pass the current
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Server Error: " + err.message);
+    }
+});
+
+router.get('/following/:username', isLoggedIn, async (req, res) => {
+    try {
+        const currentUser = await userModel.findOne({ username: req.session.passport.user });
+        // Use findOne to search by the 'username' field instead of '_id'
+        const user = await userModel.findOne({ username: req.params.username })
+                                    .populate('following');
+
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
+
+        res.render('followers', { 
+            title: 'Followers', 
+            user: user,
+            currUser: currentUser // Pass the current
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Server Error: " + err.message);
+    }
+});
+
+// --- FOLLOW / UNFOLLOW TOGGLE ---
+router.post('/follow/:profile', isLoggedIn, async (req, res) => {
+    try {
+        const targetUserId = req.params.profile;
+        const currentUser = await userModel.findOne({ username: req.session.passport.user });
+
+        if (currentUser._id.toString() === targetUserId) {
+            return res.redirect('back'); // Can't follow yourself
+        }
+
+        const isFollowing = currentUser.following.includes(targetUserId);
+
+        if (isFollowing) {
+            // Unfollow
+            await userModel.findByIdAndUpdate(currentUser._id, { $pull: { following: targetUserId } });
+            await userModel.findByIdAndUpdate(targetUserId, { $pull: { followers: currentUser._id } });
+        } else {
+            // Follow
+            await userModel.findByIdAndUpdate(currentUser._id, { $addToSet: { following: targetUserId } });
+            await userModel.findByIdAndUpdate(targetUserId, { $addToSet: { followers: currentUser._id } });
+        }
+        res.redirect('back');
+    } catch (err) {
+        res.status(500).send("Follow error");
+    }
+});
+
 router.get('/user/:profile/edit', isLoggedIn, async (req, res, next) => {
   const user = await userModel.findOne({ 
     username: req.session.passport.user
@@ -205,9 +275,9 @@ router.get('/user/:profile/edit', isLoggedIn, async (req, res, next) => {
    res.render('editProfile', { title: 'Edit Profile', user: user });
 });
 
-router.get('/user/:profile/:id', isLoggedIn, async (req, res, next) => {
+router.get('/user/:profile/:postId', isLoggedIn, async (req, res, next) => {
   try {
-    const postID = req.params.id; // lowercase for consistency
+    const postID = req.params.postId; // lowercase for consistency
     const post = await postModel.findById(postID).populate('user');
     const user = await userModel.findOne({ username: req.session.passport.user });
 
@@ -222,24 +292,26 @@ router.get('/user/:profile/:id', isLoggedIn, async (req, res, next) => {
   }
 });
 
-router.delete('/:id', isLoggedIn, async (req, res, next) => {
-  try {
-    const postID = req.params.id; // lowercase for consistency
-    const post = await postModel.findById(postID);
+// --- DELETE POST ROUTE (Matches your EJS Form Path) ---
+router.post('/user/:profile/:postid/delete', isLoggedIn, async (req, res) => {
+    try {
+        const post = await postModel.findById(req.params.postid);
+        const user = await userModel.findOne({ username: req.session.passport.user });
 
+        // Security check: Only the owner can delete
+        if (post.user.toString() !== user._id.toString()) {
+            return res.status(403).send("Unauthorized");
+        }
 
-    // Check if the logged-in user is the owner of the post
-    const user = await userModel.findOne({ username: req.session.passport.user });
-    if (post.user.toString() !== user._id.toString()) {
-      return res.status(403).send('Unauthorized');
+        // Remove post ID from user's posts array
+        await userModel.findByIdAndUpdate(user._id, { $pull: { posts: post._id } });
+        // Delete the actual post
+        await postModel.findByIdAndDelete(req.params.postid);
+
+        res.redirect('/profile');
+    } catch (err) {
+        res.status(500).send("Error deleting post");
     }
-
-    await post.remove();
-    res.redirect('/profile');
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Error deleting post');
-  }
 });
 
 function isLoggedIn(req, res, next) {
