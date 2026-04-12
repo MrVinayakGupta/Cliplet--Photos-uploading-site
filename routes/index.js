@@ -11,19 +11,50 @@ passport.use(new LocalStrategy(userModel.authenticate()));
 const upload = require('./multer');
 //handle file upload route
 router.post('/upload', isLoggedIn, upload.single('file'), async (req, res, next) => {
-  if (!req.file) {
-    return res.status(400).send('No file uploaded.');
+  try {
+    if (!req.file) {
+      return res.status(400).send('No file uploaded.');
+    }
+
+    // Find the logged-in user
+    const user = await userModel.findOne({ username: req.session.passport.user });
+
+    // Create the post matching your Schema exactly
+    const postdata = await postModel.create({
+      image: '/images/uploads/' + req.file.filename,
+      postTitle: req.body.postTitle,   // Matches HTML name="postTitle"
+      postText: req.body.filecaption, // Matches HTML name="filecaption"
+      category: req.body.category,    // Matches HTML name="category"
+      user: user._id
+    });
+
+    // Link post to user and save
+    user.posts.push(postdata._id);
+    await user.save();
+
+    res.redirect('/profile');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Upload failed: " + err.message);
   }
-  const user = await userModel.findOne({ username: req.session.passport.user });
-  const postdata = await postModel.create({
-    image: '/images/uploads/' + req.file.filename, // Store the relative path to the uploaded image
-    imageText: req.body.filecaption,
-    user: user._id
-  });
-  user.posts.push(postdata._id);
-  await user.save();
-  res.redirect('/profile');
 });
+
+// router.post('/upload', isLoggedIn, upload.single('file'), async (req, res, next) => {
+//   if (!req.file) {
+//     return res.status(400).send('No file uploaded.');
+//   }
+//   const user = await userModel.findOne({ username: req.session.passport.user });
+//   const postdata = await postModel.create({
+//     image: '/images/uploads/' + req.file.filename, // Store the relative path to the uploaded image
+//     imageText: req.body.filecaption,
+//     user: user._id,
+//     postTitle: req.body.postTitle,
+//     category: req.body.category
+//   });
+//   user.posts.push(postdata._id);
+//   await user.save();
+//   res.redirect('/profile');
+// });
 
 router.get('/upload', isLoggedIn, (req, res) => {
   res.render('upload', { title: 'Upload Image' });
@@ -197,47 +228,80 @@ router.get('/follow/:id', isLoggedIn, async (req, res) => {
     }
 });
 
+// router.get('/followers/:username', isLoggedIn, async (req, res) => {
+//     try {
+//         const currentUser = await userModel.findOne({ username: req.session.passport.user });
+//         // Use findOne to search by the 'username' field instead of '_id'
+//         const user = await userModel.findOne({ username: req.params.username })
+//                                     .populate('followers');
+
+//         if (!user) {
+//             return res.status(404).send("User not found");
+//         }
+
+//         res.render('followers', { 
+//             title: 'Followers', 
+//             user: user,
+//             currUser: currentUser // Pass the current
+//         });
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send("Server Error: " + err.message);
+//     }
+// });
 router.get('/followers/:username', isLoggedIn, async (req, res) => {
     try {
-        const currentUser = await userModel.findOne({ username: req.session.passport.user });
-        // Use findOne to search by the 'username' field instead of '_id'
         const user = await userModel.findOne({ username: req.params.username })
-                                    .populate('followers');
+            .populate('followers') // CRITICAL: This fills the 'person' object
+            .populate('following');
 
-        if (!user) {
-            return res.status(404).send("User not found");
-        }
+        const currUser = await userModel.findOne({ username: req.session.passport.user });
 
-        res.render('followers', { 
-            title: 'Followers', 
-            user: user,
-            currUser: currentUser // Pass the current
-        });
+        res.render('followers', { user, currUser, title: "Followers" });
     } catch (err) {
-        console.error(err);
-        res.status(500).send("Server Error: " + err.message);
+        res.status(500).send(err.message);
     }
 });
 
+// router.get('/following/:username', isLoggedIn, async (req, res) => {
+//     try {
+//         const currentUser = await userModel.findOne({ username: req.session.passport.user });
+//         // Use findOne to search by the 'username' field instead of '_id'
+//         const user = await userModel.findOne({ username: req.params.username })
+//                                     .populate('following');
+
+//         const targetUserId = user._id; // Get the target user's ID for the self-follow check
+        
+//         if (!user) {
+//             return res.status(404).send("User not found");
+//         }
+//         if (currentUser._id.toString() === targetUserId.toString()) {
+//             // Optional: Send a flash message or error
+//             // req.flash('error', 'You cannot follow yourself.');
+//             return res.redirect('back'); 
+//         }
+
+//         res.render('following', { 
+//             title: 'Following', 
+//             user: user,
+//             currUser: currentUser // Pass the current
+//         });
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send("Server Error: " + err.message);
+//     }
+// });
 router.get('/following/:username', isLoggedIn, async (req, res) => {
     try {
-        const currentUser = await userModel.findOne({ username: req.session.passport.user });
-        // Use findOne to search by the 'username' field instead of '_id'
         const user = await userModel.findOne({ username: req.params.username })
-                                    .populate('following');
+            .populate('followers') // CRITICAL: This fills the 'person' object
+            .populate('following');
 
-        if (!user) {
-            return res.status(404).send("User not found");
-        }
+        const currUser = await userModel.findOne({ username: req.session.passport.user });
 
-        res.render('followers', { 
-            title: 'Followers', 
-            user: user,
-            currUser: currentUser // Pass the current
-        });
+        res.render('following', { user, currUser, title: "Following" });
     } catch (err) {
-        console.error(err);
-        res.status(500).send("Server Error: " + err.message);
+        res.status(500).send(err.message);
     }
 });
 
@@ -247,26 +311,30 @@ router.post('/follow/:profile', isLoggedIn, async (req, res) => {
         const targetUserId = req.params.profile;
         const currentUser = await userModel.findOne({ username: req.session.passport.user });
 
-        if (currentUser._id.toString() === targetUserId) {
-            return res.redirect('back'); // Can't follow yourself
+        // CRITICAL CHECK: Prevent following yourself
+        if (currentUser._id.toString() === targetUserId.toString()) {
+            console.log("Self-follow blocked");
+            return res.redirect('back'); 
         }
 
         const isFollowing = currentUser.following.includes(targetUserId);
 
         if (isFollowing) {
-            // Unfollow
+            // UNFOLLOW Logic
             await userModel.findByIdAndUpdate(currentUser._id, { $pull: { following: targetUserId } });
             await userModel.findByIdAndUpdate(targetUserId, { $pull: { followers: currentUser._id } });
         } else {
-            // Follow
+            // FOLLOW Logic
             await userModel.findByIdAndUpdate(currentUser._id, { $addToSet: { following: targetUserId } });
             await userModel.findByIdAndUpdate(targetUserId, { $addToSet: { followers: currentUser._id } });
         }
         res.redirect('back');
     } catch (err) {
-        res.status(500).send("Follow error");
+        res.status(500).send("Server Error");
     }
 });
+
+
 
 router.get('/user/:profile/edit', isLoggedIn, async (req, res, next) => {
   const user = await userModel.findOne({ 
@@ -313,6 +381,64 @@ router.post('/user/:profile/:postid/delete', isLoggedIn, async (req, res) => {
         res.status(500).send("Error deleting post");
     }
 });
+
+router.get('/api/search', isLoggedIn, async (req, res) => {
+    try {
+        const query = req.query.q; // Gets search term from URL: /search?q=something
+        
+        if (!query) return res.redirect('back');
+
+        // 1. Search Users (Matching username or full name)
+        const users = await userModel.find({
+            $or: [
+                { username: { $regex: query, $options: 'i' } },
+                { fullName: { $regex: query, $options: 'i' } }
+            ]
+        }).limit(10); // Limit user results for cleaner UI
+
+        // 2. Search Posts (Matching caption/post text)
+        const posts = await postModel.find({
+            $or: [
+                { postText: { $regex: query, $options: 'i' } },
+                { category: { $regex: query, $options: 'i' } }
+            ]
+        }).populate('user');
+
+        res.render('searchResults', { 
+            title: 'searchResults',
+            query, 
+            users, 
+            posts 
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Search error occurred.");
+    }
+});
+
+// router.get("/api/search", async (req, res) => {
+//   try {
+//         const { q } = req.query; // Get the search term from URL
+//         const user = await userModel.find({ $text: { $search: q } });
+//         // "i" makes it case-insensitive
+//         const regex = new RegExp(q, 'i'); 
+
+//         // Search in title or location (adjust fields based on your schema)
+//         const results = await userModel.find({
+//             $or: [
+//                 { username: regex },
+//                 { name: regex },
+//                 { bio: regex }  
+//             ]
+//         });
+
+//         res.render("searchResults", { results, query: q, user });
+//     } catch (err) {
+//         console.error(err);
+//         res.status(500).send("Search error occurred." + err.message);
+//     }
+// });
 
 function isLoggedIn(req, res, next) {
   if (req.isAuthenticated()) {
