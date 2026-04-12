@@ -96,6 +96,8 @@
   <a href="/" class="nav-item"><div class="nav-ic">🏠</div>Home</a>
   <a href="/profile" class="nav-item active"><div class="nav-ic">👤</div>Profile</a>
   <a href="/upload" class="nav-item"><div class="nav-ic">🎨</div>Create Pin</a>
+  <a href="/" class="nav-item"><div class="nav-ic">📌</div>Saved</a>
+  <a href="/settings" class="nav-item"><div class="nav-ic">⚙️</div>Settings</a>
 </aside>
 
 <main class="main">
@@ -137,7 +139,9 @@
           </div>
           <div class="person-name"><%= follower.fullName || follower.username %></div>
           <div class="person-handle">@<%= follower.username %></div>
+          <% if(currUser.followers.some(f => f._id.toString() === follower._id.toString())) { %>
           <button class="btn-follow" onclick="toggleFollow(this, '<%= follower._id %>')">Follow</button>
+          <% } %>
         </div>
       <% }) %>
     <% } %>
@@ -149,18 +153,16 @@
         <div class="person-card">
           <div class="person-avatar-wrap">
             <div class="person-avatar">
-              <% if(user.dp) { %> <img src="<%= user.dp %>"> <% } else { %>
-                <div class="person-initial"><%= (user.fullName || user.username || 'U')[0].toUpperCase() %></div>
+              <% if(followed.dp) { %> <img src="<%= followed.dp %>"> <% } else { %>
+                <div class="person-initial"><%= (followed.fullName || followed.username || 'U')[0].toUpperCase() %></div>
               <% } %>
             </div>
           </div>
-          <div class="person-name"><%= user.fullName || user.username %></div>
-          <div class="person-handle">@<%= user.username %></div>
-          <% if(currUser.following.some(f => f._id.toString() === user._id.toString())) { %>
-          <button class="btn-follow following" onclick="toggleFollow(this, '<%= user._id %>')">Following</button>
-            <% } else { %>
-            <button class="btn-follow" onclick="toggleFollow(this, '<%= user._id %>')">Follow</button>
-          <% } %>
+          <div class="person-name"><%= followed.fullName || followed.username %></div>
+          <div class="person-handle">@<%= followed.username %></div>
+          <% if(currUser.following.some(f => f._id.toString() === followed._id.toString())) { %>
+          <button class="btn-follow following" onclick="toggleFollow(this, '<%= followed._id %>')">Following</button>
+            <% } %>
         </div>
       <% }) %>
     <% } %>
