@@ -56,6 +56,7 @@ const userSchema = new mongoose.Schema({
   ]
 }, { timestamps: true });
 
+userSchema.index({ username: "text", fullName: "text", bio: "text" });
 // ✅ Apply the plugin correctly
 userSchema.plugin(passportLocalMongoose);
 
