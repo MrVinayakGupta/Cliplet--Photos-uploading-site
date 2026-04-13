@@ -317,12 +317,16 @@
     <span class="logo-txt">Pinspire</span>
   </div>
   <div class="s-label">Navigate</div>
-  <div class="nav-item active" onclick="setNav(this)"><div class="nav-ic">🏠</div>Home</div>
-  <a href="/profile" class="nav-item" style="text-decoration: none;"><div class="nav-ic">👤</div>Profile</a>
+  <a href="/"        class="nav-item active" style="text-decoration: none;"><div class="nav-ic">🏠</div>Home</a>
+  <a href="/user/<%= currUser.username %>" class="nav-item" style="text-decoration: none;"><div class="nav-ic">👤</div>Profile</a>
+  <!-- <a href="/"        class="nav-item"><div class="nav-ic">✨</div>Following</a> -->
+  <a href="/upload"  class="nav-item" style="text-decoration: none;"><div class="nav-ic" >🎨</div>Create Pin</a>
+  <a href="/"        class="nav-item" style="text-decoration: none;"><div class="nav-ic">📌</div>Saved</a>
+  <a href="/user/<%= currUser.username %>/edit" class="nav-item" style="text-decoration: none;"><div class="nav-ic">⚙️</div>Settings</a>
   <!-- <div class="nav-item" onclick="setNav(this)"><div class="nav-ic">🔍</div>Explore</div> -->
   <!-- <div class="nav-item" onclick="setNav(this)"><div class="nav-ic">✨</div>Following</div> -->
-  <div class="nav-item" onclick="setNav(this)"><div class="nav-ic">🎨</div>Create Pin</div>
-  <div class="nav-item" onclick="setNav(this)"><div class="nav-ic">📌</div>Saved</div>
+  
+
   <div class="s-label">Categories</div>
   <div class="cat-item"><div class="cat-dot" style="background:#FF3CAC"></div>Art & Design</div>
   <div class="cat-item"><div class="cat-dot" style="background:#00F5D4"></div>Architecture</div>
@@ -348,8 +352,10 @@
   <header class="topbar" id="sec0">
     <button class="mob-menu" id="menuBtn">☰</button>
     <div class="search-wrap">
-      <span class="s-ic">🔍</span>
-      <input class="search-input" id="searchInput" type="text" placeholder="Search for ideas, aesthetics, moods…"/>
+      <form action="/api/search" method="GET">
+        <span class="s-ic">🔍</span>
+        <input class="search-input" id="searchInput" type="text" placeholder="Search for ideas, aesthetics, moods…" name="q" autocomplete="off"/>
+      </form>
     </div>
     <div class="tb-actions">
       <button class="ic-btn" style="position:relative">🔔<span class="notif-dot"></span></button>
@@ -410,14 +416,14 @@
               <img
                 class="pin-img"
                 src="<%= post.image %>"
-                alt="<%= post.postText %>"
+                alt="<%= post.postTitle %>"
                 href="/<%= post._id %>"
                 loading="lazy"
                 onerror="this.src='https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=60'"
               />
               <div class="pin-gloss"></div>
               <div class="pin-overlay">
-                <div class="pin-title"><%= post.postText %></div>
+                <div class="pin-title"><%= post.postTitle %></div>
                 <div class="pin-meta">
                   <div class="pin-ava" style="background:#FF3CAC">
                     <%= post.user && post.user.username ? post.user.username[0].toUpperCase() : 'P' %>
