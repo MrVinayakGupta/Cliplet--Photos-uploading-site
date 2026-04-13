@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const postSchema = new mongoose.Schema({
+  postTitle: {
+    type: String,
+    trim: true
+  },
   postText: {
     type: String,
     trim: true
@@ -37,7 +41,12 @@ const postSchema = new mongoose.Schema({
         default: Date.now
       }
     }
-  ]
-}, { timestamps: true });
+  ],
+  category: {
+    type: String,
+    trim: true,
+    enum: ["Travel", "Food", "Fashion", "Home Decor", "DIY", "Art", "Technology", "Other", "Art & Design", "Architecture", "Food & Travel", "Photography", "Illustration", "Nature"] // example categories
+  }
+}, { timestamps: true }); 
 
 module.exports = mongoose.model('Post', postSchema);
