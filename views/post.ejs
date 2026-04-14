@@ -160,7 +160,11 @@
             .masonry { columns: 2; }
         }
 
-
+        /* SCROLLBAR */
+    ::-webkit-scrollbar{width:5px;}
+    ::-webkit-scrollbar-track{background:transparent;}
+    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:4px;}
+    ::-webkit-scrollbar-thumb:hover{background:rgba(255,60,172,.4);}
         
 
     </style>
@@ -222,8 +226,8 @@
                 <button class="btn-action">⋯</button>
             </div>
 
-            <h1 style="font-size: 32px; font-family: 'Syne';"><%= post.postText || 'Untitled Inspiration' %></h1>
-            <p style="color: var(--muted); line-height: 1.6;">Explore this curated piece of inspiration. Designed to capture attention and spark creativity in every pixel.</p>
+            <h1 style="font-size: 38px; font-family: 'Syne'; font-weight: 800; background: var(--grad1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px;"> <%= post.postTitle || 'Untitled Inspiration' %></h1>
+            <p style="color: var(--muted); line-height: 1.6;"><%= post.postText || 'Explore this curated piece of inspiration. Designed to capture attention and spark creativity in every pixel.' %></p>
 
             <div class="user-info">
                 <div class="user-ava">
@@ -239,7 +243,19 @@
                     </a>
                     <div style="font-size: 13px; color: var(--muted);"><%= post.user.followers ? post.user.followers.length : 0 %> Followers</div>
                 </div>
-                <button class="btn-action" style="margin-left: auto; font-size: 13px;">Follow</button>
+                <% if(post.user === currUser) { %>
+                    <!-- Don't show follow button if it's the current user's own post -->
+                     <h3>It's you!</h3>
+                <!-- <button class="btn-action" style="margin-left: auto; font-size: 13px;">Follow</button> -->
+                <% } else if(currUser && !currUser._id.equals(post.user._id)) { %>
+                    <button class="btn-action" style="margin-left: auto; font-size: 13px;">
+                        <% if(currUser.following && currUser.following.includes(post.user._id)) { %>
+                            Unfollow
+                        <% } else { %>
+                            Follow
+                        <% } %>
+                    </button>
+                <% } %>
             </div>
         </div>
     </div>
