@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const userModel = require('./users');
-const postModel = require('./posts');
+const userModel = require('../models/users');
+const postModel = require('../models/posts');
 const imageIds = require('../data/images');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
@@ -228,27 +228,6 @@ router.get('/follow/:id', isLoggedIn, async (req, res) => {
     }
 });
 
-// router.get('/followers/:username', isLoggedIn, async (req, res) => {
-//     try {
-//         const currentUser = await userModel.findOne({ username: req.session.passport.user });
-//         // Use findOne to search by the 'username' field instead of '_id'
-//         const user = await userModel.findOne({ username: req.params.username })
-//                                     .populate('followers');
-
-//         if (!user) {
-//             return res.status(404).send("User not found");
-//         }
-
-//         res.render('followers', { 
-//             title: 'Followers', 
-//             user: user,
-//             currUser: currentUser // Pass the current
-//         });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send("Server Error: " + err.message);
-//     }
-// });
 router.get('/followers/:username', isLoggedIn, async (req, res) => {
     try {
         const user = await userModel.findOne({ username: req.params.username })
@@ -335,7 +314,6 @@ router.post('/follow/:profile', isLoggedIn, async (req, res) => {
 });
 
 
-
 router.get('/user/:profile/edit', isLoggedIn, async (req, res, next) => {
   const user = await userModel.findOne({ 
     username: req.session.passport.user
@@ -417,28 +395,6 @@ router.get('/api/search', isLoggedIn, async (req, res) => {
     }
 });
 
-// router.get("/api/search", async (req, res) => {
-//   try {
-//         const { q } = req.query; // Get the search term from URL
-//         const user = await userModel.find({ $text: { $search: q } });
-//         // "i" makes it case-insensitive
-//         const regex = new RegExp(q, 'i'); 
-
-//         // Search in title or location (adjust fields based on your schema)
-//         const results = await userModel.find({
-//             $or: [
-//                 { username: regex },
-//                 { name: regex },
-//                 { bio: regex }  
-//             ]
-//         });
-
-//         res.render("searchResults", { results, query: q, user });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send("Search error occurred." + err.message);
-//     }
-// });
 
 function isLoggedIn(req, res, next) {
   if (req.isAuthenticated()) {
