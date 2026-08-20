@@ -1,3 +1,4 @@
+require('dotenv').config()
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -23,6 +24,7 @@ app.engine('ejs', ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
 app.use(flash());
 
+
 // Session setup
 const session = require("express-session");
 app.use(session({
@@ -41,6 +43,15 @@ passport.deserializeUser(usersRouter.deserializeUser());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(cookieParser());
+
+// Global middleware for views (makes currUser and flash messages accessible in all EJS templates)
+app.use((req, res, next) => {
+  res.locals.currUser = req.user || null;
+  res.locals.currentUser = req.user || null;
+  res.locals.success = req.flash('success');
+  res.locals.error = req.flash('error');
+  next();
+});
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
