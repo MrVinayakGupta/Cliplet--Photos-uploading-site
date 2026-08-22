@@ -10,7 +10,8 @@ const postSchema = new mongoose.Schema({
     trim: true
   },
   image: {
-    type : String
+  url: { type: String },
+  filename: { type: String }  // Cloudinary public_id
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
