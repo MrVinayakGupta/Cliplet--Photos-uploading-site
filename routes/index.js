@@ -9,6 +9,7 @@ const LocalStrategy = require('passport-local').Strategy;
 passport.use(new LocalStrategy(userModel.authenticate()));
 
 const upload = require('./multer');
+
 //handle file upload route
 router.post('/upload', isLoggedIn, upload.single('file'), async (req, res, next) => {
   try {
@@ -21,7 +22,7 @@ router.post('/upload', isLoggedIn, upload.single('file'), async (req, res, next)
 
     // Create the post matching your Schema exactly
     const postdata = await postModel.create({
-      image: '/images/uploads/' + req.file.filename,
+      image: { url: req.file.path, filename: req.file.filename },
       postTitle: req.body.postTitle,   // Matches HTML name="postTitle"
       postText: req.body.filecaption, // Matches HTML name="filecaption"
       category: req.body.category,    // Matches HTML name="category"
@@ -39,23 +40,6 @@ router.post('/upload', isLoggedIn, upload.single('file'), async (req, res, next)
   }
 });
 
-// router.post('/upload', isLoggedIn, upload.single('file'), async (req, res, next) => {
-//   if (!req.file) {
-//     return res.status(400).send('No file uploaded.');
-//   }
-//   const user = await userModel.findOne({ username: req.session.passport.user });
-//   const postdata = await postModel.create({
-//     image: '/images/uploads/' + req.file.filename, // Store the relative path to the uploaded image
-//     imageText: req.body.filecaption,
-//     user: user._id,
-//     postTitle: req.body.postTitle,
-//     category: req.body.category
-//   });
-//   user.posts.push(postdata._id);
-//   await user.save();
-//   res.redirect('/profile');
-// });
-
 router.get('/upload', isLoggedIn, (req, res) => {
   res.render('upload', { title: 'Upload Image' });
 });
@@ -68,15 +52,6 @@ router.get('/', async (req, res) => {
     res.status(500).send('Error fetching posts');
   }
 });
-
-// router.get('/', async (req, res) => {
-  
-//     const posts = await postModel.find().sort({ createdAt: -1 });
-//     res.render('home', {  title: 'Pinterest Profile', posts }); // pass posts to EJS
-
-//   // const posts = postModel.find().populate('image').exec();
-//   // res.render('home', {  title: 'Pinterest Home', posts: posts });
-// });
 
 router.post('/settings/update', isLoggedIn, async (req, res, next) => {
   const { fullName, bio, title, currentPassword, newPassword } = req.body;
@@ -134,7 +109,6 @@ router.post("/register", (req, res) => {
         res.redirect("/profile");
       });
     })
-   
 });
 
 router.get('/login', (req, res) => {
@@ -168,7 +142,6 @@ router.get('/profile', isLoggedIn,  async (req, res, next) => {
 
 
 // Dynamic route for viewing OTHER people's profiles
-// Notice we use /user/:profile to prevent clashes with your own /profile route
 router.get('/user/:profile', isLoggedIn, async (req, res) => {
     try {
         const targetUsername = req.params.profile;
@@ -188,43 +161,23 @@ router.get('/user/:profile', isLoggedIn, async (req, res) => {
 });
 
 
-// router.get('/:profile', isLoggedIn,  async (req, res, next) => {
-//   try{
-//     const userProfile = req.params.profile; // Get the profile parameter from the URL
-//     const user = await userModel.findById(userProfile).populate('posts'); // Populate the 'posts' field with the actual post documents
-
-//     if (!user) {
-//       return res.status(404).send('User not found');
-//     }
-
-//     res.render('profile', { title: 'Pinterest Profile', user: user, post: user.posts }); // Pass the user and their posts to the profile template
-//   }
-//   catch (err) {     
-//     console.error(err);
-//     res.status(500).send('Error loading profile', err.message);
-//   }
-//   //  const postID = req.params.id; // lowercase for consistency
-//   //   const post = await postModel.findById(postID).populate('user');
-//   //   res.render('profile', { title: 'Pinterest Profile', user: user, post: post });
-// });
-
 router.get('/follow/:id', isLoggedIn, async (req, res) => {
     try {
-        // Use findById and populate if you want to show the names of followers
         const user = await userModel.findById(req.params.id).populate('followers');
+        const currUser = await userModel.findOne({ username: req.session.passport.user });
 
-        // CRITICAL CHECK: If user is not found, handle it!
         if (!user) {
-            return res.status(4404).send("User not found in database");
+            return res.status(404).send("User not found in database");
         }
 
         res.render('followers', { 
             title: 'Followers', 
-            user: user // Passing the found user to EJS
+            user: user,
+            currUser: currUser
         });
     } catch (err) {
         console.error(err);
-        res.status(500).send("Server Error"+ err.message);
+        res.status(500).send("Server Error: " + err.message);
     }
 });
 
@@ -242,34 +195,6 @@ router.get('/followers/:username', isLoggedIn, async (req, res) => {
     }
 });
 
-// router.get('/following/:username', isLoggedIn, async (req, res) => {
-//     try {
-//         const currentUser = await userModel.findOne({ username: req.session.passport.user });
-//         // Use findOne to search by the 'username' field instead of '_id'
-//         const user = await userModel.findOne({ username: req.params.username })
-//                                     .populate('following');
-
-//         const targetUserId = user._id; // Get the target user's ID for the self-follow check
-        
-//         if (!user) {
-//             return res.status(404).send("User not found");
-//         }
-//         if (currentUser._id.toString() === targetUserId.toString()) {
-//             // Optional: Send a flash message or error
-//             // req.flash('error', 'You cannot follow yourself.');
-//             return res.redirect('back'); 
-//         }
-
-//         res.render('following', { 
-//             title: 'Following', 
-//             user: user,
-//             currUser: currentUser // Pass the current
-//         });
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send("Server Error: " + err.message);
-//     }
-// });
 router.get('/following/:username', isLoggedIn, async (req, res) => {
     try {
         const user = await userModel.findOne({ username: req.params.username })
@@ -338,10 +263,14 @@ router.get('/user/:profile/:postId', isLoggedIn, async (req, res, next) => {
   }
 });
 
-// --- DELETE POST ROUTE (Matches your EJS Form Path) ---
-router.post('/user/:profile/:postid/delete', isLoggedIn, async (req, res) => {
+// --- DELETE POST ROUTE ---
+const handleDeletePost = async (req, res) => {
     try {
-        const post = await postModel.findById(req.params.postid);
+        const postId = req.params.postid || req.params.postId || req.params.id;
+        const post = await postModel.findById(postId);
+        if (!post) {
+            return res.status(404).send("Post not found");
+        }
         const user = await userModel.findOne({ username: req.session.passport.user });
 
         // Security check: Only the owner can delete
@@ -352,13 +281,19 @@ router.post('/user/:profile/:postid/delete', isLoggedIn, async (req, res) => {
         // Remove post ID from user's posts array
         await userModel.findByIdAndUpdate(user._id, { $pull: { posts: post._id } });
         // Delete the actual post
-        await postModel.findByIdAndDelete(req.params.postid);
+        await postModel.findByIdAndDelete(postId);
 
         res.redirect('/profile');
     } catch (err) {
-        res.status(500).send("Error deleting post");
+        console.error(err);
+        res.status(500).send("Error deleting post: " + err.message);
     }
-});
+};
+
+// CORRECTED ROUTE ALIASES 
+router.post('/user/:profile/:postId/delete', isLoggedIn, handleDeletePost);
+router.post('/post/:postId/delete', isLoggedIn, handleDeletePost); // Fixed here
+router.post('/delete/:postId', isLoggedIn, handleDeletePost); // Standardized to postId
 
 router.get('/api/search', isLoggedIn, async (req, res) => {
     try {
