@@ -202,7 +202,7 @@
         <div class="post-visual">
             <div class="main-img-card" id="tiltCard">
                 <% if (post.image) { %>
-                    <img src="<%= post.image %>" alt="Post Image">
+                    <img src="<%= (post.image && post.image.url) ? post.image.url : (post.image || '') %>" alt="<%= post.postTitle || 'Post Image' %>">
                 <% } else { %>
                     <div style="padding: 100px; text-align: center;">No Image Found</div>
                 <% } %>
@@ -215,8 +215,8 @@
                 <button class="btn-action">📌 Pin</button>
                 <button class="btn-action btn-save">Save</button>
                 
-                <% if(currUser && currUser._id.equals(post.user._id)) { %>
-                <form action="/delete/<%= post._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete this pin permanently?');">
+                <% if(typeof currUser !== 'undefined' && currUser && post.user && currUser._id.toString() === post.user._id.toString()) { %>
+                <form action="/post/<%= post._id %>/delete" method="POST" onsubmit="return confirm('Delete this pin permanently?');">
                     <button type="submit" class="btn-action btn-delete">
                         🗑️ Delete
                     </button>
@@ -231,30 +231,33 @@
 
             <div class="user-info">
                 <div class="user-ava">
-                    <% if(post.user.dp === null || post.user.dp === " ") { %>
-                         <%= post.user.username[0].toUpperCase() %>
-                    <% } else { %>
+                    <% if(post.user && post.user.dp) { %>
                         <img src="<%= post.user.dp %>" >
+                    <% } else { %>
+                        <%= (post.user && post.user.username ? post.user.username[0] : 'U').toUpperCase() %>
                     <% } %>
                 </div>
                 <div>
                     <a href="/user/<%= post.user ? post.user.username : 'anonymous' %>" style="text-decoration: none; color: inherit;">
-                        <div style="font-weight: 700;">Post by <%= post.user ? post.user.username : 'Anonymous' %></div>
+                        <div style="font-weight: 700;">Post by <%= post.user ? (post.user.fullName || post.user.username) : 'Anonymous' %></div>
                     </a>
-                    <div style="font-size: 13px; color: var(--muted);"><%= post.user.followers ? post.user.followers.length : 0 %> Followers</div>
+                    <div style="font-size: 13px; color: var(--muted);"><%= (post.user && post.user.followers) ? post.user.followers.length : 0 %> Followers</div>
                 </div>
-                <% if(post.user === currUser) { %>
+                <% if(typeof currUser !== 'undefined' && currUser && post.user && currUser._id.toString() === post.user._id.toString()) { %>
                     <!-- Don't show follow button if it's the current user's own post -->
-                     <h3>It's you!</h3>
-                <!-- <button class="btn-action" style="margin-left: auto; font-size: 13px;">Follow</button> -->
-                <% } else if(currUser && !currUser._id.equals(post.user._id)) { %>
-                    <button class="btn-action" style="margin-left: auto; font-size: 13px;">
-                        <% if(currUser.following && currUser.following.includes(post.user._id)) { %>
-                            Unfollow
-                        <% } else { %>
-                            Follow
-                        <% } %>
-                    </button>
+                     <!-- <h3>It's you!</h3> -->
+                <% } else if(typeof currUser !== 'undefined' && currUser && post.user) { %>
+                    <form action="/follow/<%= post.user._id %>" method="POST" style="margin-left: auto;">
+                        <button class="btn-action" type="submit" style="font-size: 13px;">
+                            <% if(currUser.following && currUser.following.some(id => (id._id || id).toString() === post.user._id.toString())) { %>
+                                Unfollow
+                            <% } else { %>
+                                Follow
+                            <% } %>
+                        </button>
+                    </form>
+                <% } else if(post.user) { %>
+                    <a href="/login" class="btn-action" style="margin-left: auto; font-size: 13px; text-decoration:none;">Follow</a>
                 <% } %>
             </div>
         </div>
