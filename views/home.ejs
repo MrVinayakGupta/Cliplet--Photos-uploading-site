@@ -318,11 +318,17 @@
   </div>
   <div class="s-label">Navigate</div>
   <a href="/"        class="nav-item active" style="text-decoration: none;"><div class="nav-ic">🏠</div>Home</a>
+  <% if(currUser) { %>
   <a href="/user/<%= currUser.username %>" class="nav-item" style="text-decoration: none;"><div class="nav-ic">👤</div>Profile</a>
+  <% } else { %>
+    <a href="/login" class="nav-item" style="text-decoration: none;"><div class="nav-ic">👤</div>Login</a>
+  <% } %>
   <!-- <a href="/"        class="nav-item"><div class="nav-ic">✨</div>Following</a> -->
   <a href="/upload"  class="nav-item" style="text-decoration: none;"><div class="nav-ic" >🎨</div>Create Pin</a>
   <a href="/"        class="nav-item" style="text-decoration: none;"><div class="nav-ic">📌</div>Saved</a>
-  <a href="/user/<%= currUser.username %>/edit" class="nav-item" style="text-decoration: none;"><div class="nav-ic">⚙️</div>Settings</a>
+  <% if(currUser) { %>
+    <a href="/user/<%= currUser.username %>/edit" class="nav-item" style="text-decoration: none;"><div class="nav-ic">⚙️</div>Settings</a>
+  <% } %>
   <!-- <div class="nav-item" onclick="setNav(this)"><div class="nav-ic">🔍</div>Explore</div> -->
   <!-- <div class="nav-item" onclick="setNav(this)"><div class="nav-ic">✨</div>Following</div> -->
   
@@ -337,12 +343,21 @@
   <div class="cat-item"><div class="cat-dot" style="background:#A8FF3E"></div>Illustration</div>
   <div class="cat-item"><div class="cat-dot" style="background:#34d399"></div>Nature</div>
   <div class="s-footer">
-    <div class="user-row">
-      <a href="/profile">
-      <div class="u-ava">A</div>
-      <div><div class="u-name">Alex Rivera</div><div class="u-handle">@alexdesigns</div></div>
-      </a>
-    </div>
+    <% if(currUser) { %>
+      <div class="user-row">
+        <a href="/profile" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;">
+          <div class="u-ava"><%= (currUser.fullName || currUser.username || 'U')[0].toUpperCase() %></div>
+          <div><div class="u-name"><%= currUser.fullName || currUser.username %></div><div class="u-handle">@<%= currUser.username %></div></div>
+        </a>
+      </div>
+    <% } else { %>
+      <div class="user-row">
+        <a href="/login" style="display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit;">
+          <div class="u-ava">?</div>
+          <div><div class="u-name">Guest</div><div class="u-handle">Click to Login</div></div>
+        </a>
+      </div>
+    <% } %>
   </div>
 </aside>
 
@@ -360,7 +375,7 @@
     <div class="tb-actions">
       <button class="ic-btn" style="position:relative">🔔<span class="notif-dot"></span></button>
       <button class="ic-btn">💬</button>
-      <button class="create-btn">＋ Create</button>
+      <a href="/upload" style="text-decoration:none;"><button class="create-btn">＋ Create</button></a>
     </div>
   </header>
 
@@ -411,13 +426,12 @@
       <% if(typeof posts !== 'undefined' && posts.length > 0) { %>
         <% posts.forEach(function(post, index) { %>
           <div class="pin" data-index="<%= index %>">
-            <a href="/user/<%= post.user.username %>/<%= post._id %>">
+            <a href="/user/<%= (post.user && post.user.username) ? post.user.username : 'user' %>/<%= post._id %>">
             <div class="pin-inner">
               <img
                 class="pin-img"
-                src="<%= post.image %>"
-                alt="<%= post.postTitle %>"
-                href="/<%= post._id %>"
+                src="<%= (post.image && post.image.url) ? post.image.url : (post.image || '') %>"
+                alt="<%= post.postTitle || 'Pin' %>"
                 loading="lazy"
                 onerror="this.src='https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=60'"
               />
@@ -624,15 +638,22 @@ document.addEventListener('click', e => {
 ══════════════════════════════════ */
 document.getElementById('searchInput').addEventListener('input', function() {
   const q = this.value.toLowerCase();
-  document.querySelectorAll('.pin, .flip-wrap').forEach(card => {
-    const t = card.querySelector('.pin-title, .flip-back-title, .pin-img');
-    const text = t ? (t.textContent || t.alt || '').toLowerCase() : '';
-    const match = !q || text.includes(q);
+
+  document.querySelectorAll('.post-card, .user-card').forEach(card => {
+    const title   = card.querySelector('.pin-title')?.textContent || '';
+    const text    = card.querySelector('.pin-text')?.textContent || '';
+    const category= card.querySelector('.pin-category')?.textContent || '';
+    const imgAlt  = card.querySelector('.pin-img')?.alt || '';
+
+    const searchable = [title, text, category, imgAlt].join(' ').toLowerCase();
+    const match = !q || searchable.includes(q);
+
     card.style.opacity    = match ? '' : '0.12';
     card.style.transform  = match ? '' : 'scale(.93)';
     card.style.transition = 'opacity .3s,transform .3s';
   });
 });
+
 
 /* ══════════════════════════════════
    SCROLL DOTS
