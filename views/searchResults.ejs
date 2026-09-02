@@ -84,10 +84,13 @@
     <div class="post-grid">
       <% posts.forEach(p => { %>
         <div class="post-card">
-          <a href="/user/<%= p.user.username %>/<%= p._id %>">
-            <img src="<%= p.image %>" alt="Result">
+          <a href="/user/<%= (p.user && p.user.username) ? p.user.username : 'user' %>/<%= p._id %>">
+            <img src="<%= (p.image && p.image.url) ? p.image.url : (p.image || '') %>" 
+                alt="<%= p.postTitle || 'Result' %>" class="pin-img">
             <div class="post-overlay">
-              <p style="font-size: 13px; font-weight: 600;"><%= p.postTitle %></p>
+              <p class="pin-title"><%= p.postTitle || '' %></p>
+              <p class="pin-text"><%= p.postText || '' %></p>
+              <p class="pin-category"><%= p.category || '' %></p>
             </div>
           </a>
         </div>
