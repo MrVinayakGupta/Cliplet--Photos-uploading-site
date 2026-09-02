@@ -34,7 +34,7 @@
     .o3{width:300px;height:300px;background:var(--cyan);top:40%;left:40%;animation:orbA 12s ease-in-out infinite alternate;}
     @keyframes orbA{0%{transform:translate(0,0) scale(1);}100%{transform:translate(45px,35px) scale(1.12);}}
 
-    /* ═══ SIDEBAR — exact match to settings.ejs ═══ */
+    /* ═══ SIDEBAR ═══ */
     .sidebar{position:fixed;left:0;top:0;bottom:0;width:var(--sidebar-w);background:rgba(7,7,16,.78);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-right:1px solid var(--glass-b);z-index:200;display:flex;flex-direction:column;padding:24px 0;transition:transform .4s cubic-bezier(.4,0,.2,1);}
 
     .logo{display:flex;align-items:center;gap:11px;padding:0 22px 24px;border-bottom:1px solid var(--glass-b);font-family:'Syne',sans-serif;font-size:21px;font-weight:800;}
@@ -128,7 +128,7 @@
     .divider-line{flex:1;height:1px;background:linear-gradient(90deg,var(--glass-b),transparent);}
     .post-count{font-size:12px;color:var(--muted);padding:4px 12px;border-radius:50px;background:var(--glass);border:1px solid var(--glass-b);white-space:nowrap;}
 
-    /* MASONRY — natural aspect ratio just like home.ejs */
+    /* MASONRY */
     .posts-grid{columns:4;column-gap:14px;}
     @media(max-width:1200px){.posts-grid{columns:3;}}
     @media(max-width:860px) {.posts-grid{columns:2;}}
@@ -142,7 +142,6 @@
     .post-card:hover .post-gloss{opacity:1;}
     .post-card:hover .post-save{opacity:1;transform:translateY(0);}
     .post-inner{border-radius:20px;overflow:hidden;position:relative;box-shadow:0 8px 30px rgba(0,0,0,.4);transition:box-shadow .4s;}
-    /* natural aspect ratio — no forced height */
     .post-img{width:100%;height:auto;display:block;object-fit:cover;transition:transform .6s cubic-bezier(.22,1,.36,1);}
     .post-gloss{position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.16) 0%,transparent 50%,rgba(0,0,0,.08) 100%);opacity:0;transition:opacity .4s;pointer-events:none;}
     .post-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 30%,rgba(0,0,0,.85) 100%);opacity:0;transition:opacity .35s;display:flex;flex-direction:column;justify-content:flex-end;padding:14px;}
@@ -152,7 +151,7 @@
     .post-username{font-size:11px;color:rgba(255,255,255,.75);font-weight:500;}
     .post-save{position:absolute;top:10px;right:10px;padding:7px 16px;border-radius:50px;background:var(--grad1);color:#fff;font-size:11px;font-weight:700;border:none;cursor:pointer;box-shadow:0 4px 16px rgba(255,60,172,.5);font-family:'Cabinet Grotesk',sans-serif;opacity:0;transform:translateY(-6px);transition:all .3s cubic-bezier(.34,1.56,.64,1);}
 
-    /* Delete btn — only own posts */
+    /* Delete btn */
     .post-delete{position:absolute;top:10px;left:10px;width:30px;height:30px;border-radius:50%;background:rgba(255,60,172,.12);border:1px solid rgba(255,60,172,.3);color:var(--pink);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(-6px);transition:all .3s;backdrop-filter:blur(8px);z-index:4;}
     .post-card:hover .post-delete{opacity:1;transform:translateY(0);}
     .post-delete:hover{background:rgba(255,60,172,.3);border-color:rgba(255,60,172,.6);}
@@ -195,7 +194,7 @@
 </div>
 
 <!-- ═══════════════════════════════
-     SIDEBAR — matches settings.ejs
+     SIDEBAR
 ═══════════════════════════════ -->
 <aside class="sidebar" id="sidebar">
 
@@ -206,11 +205,19 @@
 
   <div class="s-label">Navigate</div>
   <a href="/"        class="nav-item"><div class="nav-ic">🏠</div>Home</a>
-  <a href="/user/<%= currUser.username %>" class="nav-item active"><div class="nav-ic">👤</div>Profile</a>
-  <!-- <a href="/"        class="nav-item"><div class="nav-ic">✨</div>Following</a> -->
+  
+  <% if(typeof currUser !== 'undefined' && currUser) { %>
+    <a href="/user/<%= currUser.username %>" class="nav-item active"><div class="nav-ic">👤</div>Profile</a>
+  <% } else { %>
+    <a href="/login" class="nav-item"><div class="nav-ic">👤</div>Login</a>
+  <% } %>
+  
   <a href="/upload"  class="nav-item"><div class="nav-ic">🎨</div>Create Pin</a>
   <a href="/"        class="nav-item"><div class="nav-ic">📌</div>Saved</a>
-  <a href="/user/<%= currUser.username %>/edit" class="nav-item"><div class="nav-ic">⚙️</div>Settings</a>
+  
+  <% if(typeof currUser !== 'undefined' && currUser) { %>
+    <a href="/user/<%= currUser.username %>/edit" class="nav-item"><div class="nav-ic">⚙️</div>Settings</a>
+  <% } %>
 
   <div class="s-label">Categories</div>
   <div class="cat-item"><div class="cat-dot" style="background:#FF3CAC"></div>Art & Design</div>
@@ -294,14 +301,6 @@
             <div class="stat-label">Following</div>
             </a>
           </div>
-          <!-- <div class="stat">
-            <span class="stat-num">4.2k</span>
-            <div class="stat-label">Followers</div>
-          </div>
-          <div class="stat">
-            <span class="stat-num">318</span>
-            <div class="stat-label">Following</div>
-          </div> -->
         </div>
 
         <!-- SOCIAL ICONS -->
@@ -318,20 +317,22 @@
         <div class="action-row">
             <button class="btn-ghost">💬 Message</button>
 
-            <% if(currUser && currUser._id.toString() === user._id.toString()) { %>
+            <!-- GUEST vs OWNER vs LOGGED-IN VIEWER LOGIC -->
+            <% if(typeof currUser !== 'undefined' && currUser && currUser.username === user.username) { %>
                 <a href="/upload" class="btn-cyan">＋ Create Pin</a>
                 <a href="/user/<%= user.username %>/edit" class="btn-primary">⚙️ Settings</a>
-            <% } else { %>
+            <% } else if(typeof currUser !== 'undefined' && currUser) { %>
                 <form action="/follow/<%= user._id %>" method="POST">
-                    <% if (currUser.following.map(id => id.toString()).includes(user._id.toString())) { %>
+                    <% if (currUser.following && currUser.following.map(id => id.toString()).includes(user._id.toString())) { %>
                         <button type="submit" class="btn-ghost" style="color: var(--pink); border-color: var(--pink);">
-                          <span style="color: red;">✕</span>
-                             Unfollow
+                          <span style="color: red;">✕</span> Unfollow
                         </button>
                     <% } else { %>
                         <button type="submit" class="btn-primary">＋ Follow</button>
                     <% } %>
                 </form>
+            <% } else { %>
+                <a href="/login" class="btn-primary" style="text-decoration:none;">＋ Follow</a>
             <% } %>
         </div>
       </div><!-- /user-info -->
@@ -341,24 +342,24 @@
   <!-- POSTS SECTION -->
   <div class="section-divider">
     <h2>
-      <% if(currUser && currUser._id.toString() === user._id.toString()) { %>
+      <% if(typeof currUser !== 'undefined' && currUser && currUser.username === user.username) { %>
         My
       <% } else { %>
-        <%= user.fullName.split(' ')[0] %>'s
+        <%= (user.fullName || user.username || 'User').split(' ')[0] %>'s
       <% } %>
       <span>Pins</span>
     </h2>
     <div class="divider-line"></div>
-    <span class="post-count"><%= user.posts.length %> <%= user.posts.length === 1 ? 'pin' : 'pins' %></span>
+    <span class="post-count"><%= (user.posts || []).length %> <%= (user.posts || []).length === 1 ? 'pin' : 'pins' %></span>
   </div>
 
-  <% if(user.posts.length === 0) { %>
+  <% if(!user.posts || user.posts.length === 0) { %>
     <div class="empty-state">
       <span class="empty-icon">📌</span>
-      <% if(currUser && currUser._id.toString() === user._id.toString()) { %>
+      <% if(typeof currUser !== 'undefined' && currUser && currUser.username === user.username) { %>
         <p>No pins yet!<br/><a href="/upload" class="em-link">Create your first pin →</a></p>
       <% } else { %>
-        <p><%= user.fullName.split(' ')[0] %> hasn't shared any pins yet.</p>
+        <p><%= (user.fullName || user.username || 'User').split(' ')[0] %> hasn't shared any pins yet.</p>
       <% } %>
     </div>
 
@@ -371,16 +372,16 @@
             <div class="post-inner">
               <img
                 class="post-img"
-                src="<%= post.image %>"
-                alt="<%= post.caption || 'Pin by ' + user.fullName %>"
+                src="<%= (post.image && post.image.url) ? post.image.url : (post.image || '') %>"
+                alt="<%= post.postTitle || post.postText || 'Pin' %>"
                 loading="lazy"
                 onerror="this.src='https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=60'"
               />
               <div class="post-gloss"></div>
               <div class="post-overlay">
-                <div class="post-caption"><%= post.caption %></div>
+                <div class="post-caption"><%= post.postTitle || post.postText || '' %></div>
                 <div class="post-meta">
-                  <div class="post-ava"><%= user.fullName[0].toUpperCase() %></div>
+                  <div class="post-ava"><%= (user.fullName || user.username || 'U')[0].toUpperCase() %></div>
                   <span class="post-username">@<%= user.username %></span>
                 </div>
               </div>
@@ -389,7 +390,8 @@
           </a>
 
           <!-- Delete only for own posts -->
-          <% if(currUser && currUser._id.toString() === user._id.toString()) { %>
+          <% if(typeof currUser !== 'undefined' && currUser && currUser.username === user.username) { %>
+            <!-- UPDATED ACTION TARGETING THE NEW GENERIC PATH -->
             <form action="/post/<%= post._id %>/delete" method="POST" style="position:absolute;top:10px;left:10px;z-index:5;" onclick="event.stopPropagation()">
               <button class="post-delete" type="submit" title="Delete pin" onclick="return confirm('Delete this pin?')">
                 <i class="fas fa-trash-alt"></i>
